@@ -16,3 +16,20 @@ http.createServer(function (req, res) {
 }).listen(8080);`;
 	return res.send(fileContents);
 };
+
+export const updateFile = (req, res) => {
+	// operation -> update, delete, create
+	// if newContent is null, that also technically equates to a delete operation.
+	const { fileId, newContent, operation = "update" } = req.body;
+
+	switch (operation) {
+		case "create":
+			return res.sendStatus(201);
+		case "delete":
+			return res.sendStatus(204);
+		case "update":
+			return res.sendStatus(200);
+		default:
+			return res.sendStatus(200);
+	}
+};
