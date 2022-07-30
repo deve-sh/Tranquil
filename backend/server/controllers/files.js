@@ -1,5 +1,5 @@
 export const getProjectFileList = (req, res) => {
-	const { projectId } = req;
+	const { projectId } = req.params;
 	const fileList = [
 		{ name: "/index.js", id: "8c3b0553-7d6e-45fa-bab9-d53e2da0f64d" },
 	];
@@ -7,7 +7,7 @@ export const getProjectFileList = (req, res) => {
 };
 
 export const getFileContents = (req, res) => {
-	const { fileId } = req;
+	const { fileId } = req.params;
 	const fileContents = `var http = require('http');
 
 http.createServer(function (req, res) {
