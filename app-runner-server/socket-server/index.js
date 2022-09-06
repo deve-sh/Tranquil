@@ -27,7 +27,7 @@ io.on("connection", (socket) => {
 		if (!projectId || !fileName || !newContents) return;
 
 		fse
-			.writeFile(`../${projectId}/${fileName}`, newContents)
+			.writeFile(`../running-projects/${projectId}/${fileName}`, newContents)
 			.then(() => {
 				setTimeout(() => {
 					socket.emit("fileupdatesuccess", {
