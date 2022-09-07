@@ -1,10 +1,10 @@
-import { Router } from "express";
-import {
+const { Router } = require("express");
+const {
 	getUserProjects,
 	createProject,
 	getProjectInfo,
 	updateProject,
-} from "../controllers/projects";
+} = require("../controllers/projects");
 
 const projectsRouter = Router();
 
@@ -13,4 +13,4 @@ projectsRouter.get("/:projectId", getProjectInfo);
 projectsRouter.post("/", createProject);
 projectsRouter.put("/:projectId", updateProject);
 
-export default projectsRouter;
+module.exports = projectsRouter;

@@ -1,6 +1,6 @@
 // Create React App Boilerplate
 
-const craFiles = (projectName) => [
+exports.files = (projectName) => [
 	{
 		path: ".gitignore",
 		contents:
@@ -72,4 +72,5 @@ const craFiles = (projectName) => [
 	},
 ];
 
-module.exports = craFiles;
+exports.startCommand = "npm run start";
+exports.buildCommand = "npm run build";

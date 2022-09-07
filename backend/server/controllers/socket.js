@@ -10,4 +10,4 @@ const setupSocketControllers = (socketServer) => {
 	});
 };
 
-export default setupSocketControllers;
+module.exports = setupSocketControllers;

@@ -1,14 +1,13 @@
-import express from "express";
-import { createServer } from "http";
-import socket from "socket.io";
-import cors from "cors";
-import { config } from "dotenv";
+require("dotenv").config();
 
-config();
+const express = require("express");
+const { createServer } = require("http");
+const socket = require("socket.io");
+const cors = require("cors");
 
 // Routers
-import filesRouter from "./routes/files";
-import projectsRouter from "./routes/projects";
+const filesRouter = require("./routes/files");
+const projectsRouter = require("./routes/projects");
 
 const app = express();
 const server = createServer(app);
@@ -21,7 +20,7 @@ app.use("*", (req, _, next) => {
 });
 
 // Socket Server and Controllers
-import setupSocketControllers from "./controllers/socket";
+const setupSocketControllers = require("./controllers/socket");
 const socketServer = socket(server, { cors: { origin: "*" } });
 setupSocketControllers(socketServer);
 

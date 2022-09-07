@@ -1,23 +1,25 @@
-export const getProjectFileList = (req, res) => {
+const ProjectFile = require("../../../common/db/models/ProjectFile");
+
+module.exports.getProjectFileList = async (req, res) => {
 	const { projectId } = req.params;
-	const fileList = [
-		{ name: "/index.js", id: "8c3b0553-7d6e-45fa-bab9-d53e2da0f64d" },
-	];
-	return res.send(fileList);
+	const fileList = await ProjectFile.findAll({
+		where: { projectId },
+		attributes: ["id", "path"],
+	});
+	return res.send({ message: "Retreived File List successfully", fileList });
 };
 
-export const getFileContents = (req, res) => {
+module.exports.getFileContents = async (req, res) => {
 	const { fileId } = req.params;
-	const fileContents = `var http = require('http');
-
-http.createServer(function (req, res) {
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    res.end('Hello World!');
-}).listen(8080);`;
+	const fileContents = await ProjectFile.findOne({
+		where: { id: fileId },
+		attributes: "contents",
+	});
+	if (!fileContents) return res.sendStatus(404);
 	return res.send(fileContents);
 };
 
-export const updateFile = (req, res) => {
+module.exports.updateFile = (req, res) => {
 	// operation -> update, delete, create
 	// if newContent is null, that also technically equates to a delete operation.
 	const { fileId, newContent, operation = "update" } = req.body;

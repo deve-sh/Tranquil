@@ -20,6 +20,10 @@ const ProjectFile = db.define(
 			type: DataTypes.STRING,
 			defaultValue: "",
 		},
+		path: {
+			type: DataTypes.STRING,
+			allowNull: false,
+		},
 	},
 	{
 		timestamps: true,
