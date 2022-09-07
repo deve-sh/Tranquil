@@ -7,11 +7,6 @@ exports.files = (projectName) => [
 			"# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.\n\n# dependencies\n/node_modules\n/.pnp\n.pnp.js\n\n# testing\n/coverage\n\n# production\n/build\n\n# misc\n.DS_Store\n.env.local\n.env.development.local\n.env.test.local\n.env.production.local\n\nnpm-debug.log*\nyarn-debug.log*\nyarn-error.log*\n",
 	},
 	{
-		path: "listAllFiles.js",
-		contents:
-			'const { promisify } = require("util");\r\nconst { resolve } = require("path");\r\nconst fs = require("fs");\r\nconst readdir = promisify(fs.readdir);\r\nconst stat = promisify(fs.stat);\r\n\r\nasync function readDir(dir) {\r\n\tconst subdirs = await readdir(dir);\r\n\tconst files = await Promise.all(\r\n\t\tsubdirs.map(async (subdir) => {\r\n\t\t\tconst res = resolve(dir, subdir);\r\n\t\t\treturn (await stat(res)).isDirectory() ? readDir(res) : res;\r\n\t\t})\r\n\t);\r\n\treturn files.reduce((a, f) => a.concat(f), []);\r\n}\r\n\r\nreadDir("./")\r\n\t.then((files) =>\r\n\t\tfiles.map((path) =>\r\n\t\t\tpath.replace(\r\n\t\t\t\t"C:\\\\Users\\\\deves\\\\Desktop\\\\Personal Projects\\\\real-time-online-dev-env\\\\cra-boilerplate\\\\",\r\n\t\t\t\t""\r\n\t\t\t)\r\n\t\t)\r\n\t)\r\n\t.then((files) => {\r\n\t\tconst boilerPlateContents = files.map((filePath) => {\r\n\t\t\tconst contents = fs.readFileSync("./" + filePath, "utf-8");\r\n\t\t\tconst path = filePath;\r\n\t\t\treturn { path, contents };\r\n\t\t});\r\n\t\treturn boilerPlateContents;\r\n\t})\r\n\t.then((json) =>\r\n\t\tfs.writeFileSync("./boilerplate.js", JSON.stringify(json, null, 4))\r\n\t);\r\n',
-	},
-	{
 		path: "package.json",
 		contents: `{\n  "name": "${projectName
 			.toLowerCase()
