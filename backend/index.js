@@ -14,7 +14,7 @@ const server = createServer(app);
 app.use("*", cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("*", (req, _, next) => {
+app.use((req, _, next) => {
 	console.log("Request at: ", req.url);
 	next();
 });
