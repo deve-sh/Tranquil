@@ -1,22 +1,30 @@
 const ProjectFile = require("../../common/db/models/ProjectFile");
 
 module.exports.getProjectFileList = async (req, res) => {
-	const { projectId } = req.params;
-	const fileList = await ProjectFile.findAll({
-		where: { projectId },
-		attributes: ["id", "path"],
-	});
-	return res.send({ message: "Retreived File List successfully", fileList });
+	try {
+		const { projectId } = req.params;
+		const fileList = await ProjectFile.find({ projectId })
+			.select("-contents -__v")
+			.lean();
+		return res.send({ message: "Retreived File List successfully", fileList });
+	} catch (err) {
+		return res
+			.status(500)
+			.send({ message: err.message, error: "Internal Server Error" });
+	}
 };
 
 module.exports.getFileContents = async (req, res) => {
-	const { fileId } = req.params;
-	const fileContents = await ProjectFile.findOne({
-		where: { id: fileId },
-		attributes: "contents",
-	});
-	if (!fileContents) return res.sendStatus(404);
-	return res.send(fileContents);
+	try {
+		const { fileId } = req.params;
+		const file = await ProjectFile.findById(fileId).select("contents").lean();
+		if (!file) return res.sendStatus(404);
+		return res.send(file.contents);
+	} catch (err) {
+		return res
+			.status(500)
+			.send({ message: err.message, error: "Internal Server Error" });
+	}
 };
 
 module.exports.updateFile = (req, res) => {
