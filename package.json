@@ -1,0 +1,23 @@
+{
+  "name": "real-time-online-dev-env",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deve-sh/real-time-online-dev-env.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/deve-sh/real-time-online-dev-env/issues"
+  },
+  "homepage": "https://github.com/deve-sh/real-time-online-dev-env#readme",
+  "dependencies": {
+    "pg": "^8.8.0"
+  }
+}
