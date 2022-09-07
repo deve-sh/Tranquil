@@ -1,4 +1,4 @@
-const ProjectFile = require("../common/db/models/ProjectFile");
+const ProjectFile = require("../../common/db/models/ProjectFile");
 
 module.exports.getProjectFileList = async (req, res) => {
 	const { projectId } = req.params;

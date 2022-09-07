@@ -1,4 +1,4 @@
-const { DataTypes, ENUM } = require("sequelize");
+const { DataTypes, ENUM, literal } = require("sequelize");
 const db = require("../index");
 
 const ProjectFile = require("./ProjectFile");
