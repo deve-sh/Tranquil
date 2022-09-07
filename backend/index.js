@@ -1,4 +1,5 @@
 require("dotenv").config();
+console.log(process.env.DB_USERNAME);
 
 const express = require("express");
 const { createServer } = require("http");

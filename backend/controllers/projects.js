@@ -1,6 +1,6 @@
-const db = require("../../../common/db");
-const Project = require("../../../common/db/models/Project");
-const ProjectFile = require("../../../common/db/models/ProjectFile");
+const db = require("../common/db");
+const Project = require("../common/db/models/Project");
+const ProjectFile = require("../common/db/models/ProjectFile");
 
 module.exports.getUserProjects = (req, res) => {
 	return res.send([]);
