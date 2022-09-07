@@ -24,11 +24,10 @@ module.exports.createProject = async (req, res) => {
 		return res.status(400).json({ error: "Invalid Payload for project." });
 
 	try {
-		const boilerplate = require(`../../../common/${template.toLowerCase()}`);
-		console.log({ boilerplate });
+		const boilerplate = require(`../../common/boilerplates/${template.toLowerCase()}`);
 		if (boilerplate && boilerplate.files) {
 			const project = new Project({ projectName, template });
-			const projectFiles = boilerplate.files;
+			const projectFiles = await boilerplate.files(projectName);
 			const fileCreationPromises = [];
 			for (const file of projectFiles) {
 				const fileToSave = new ProjectFile({ projectId: project._id, ...file });
