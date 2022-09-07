@@ -1,9 +1,5 @@
-const { Sequelize } = require("sequelize");
-const pg = require("pg");
+const mongoose = require("mongoose");
 
-const db = new Sequelize(process.env.DB_URL, {
-	dialect: "postgres",
-	dialectModule: pg,
-});
+const setupMongoDBConnection = async () => mongoose.connect(process.env.DB_URL);
 
-module.exports = db;
+module.exports = setupMongoDBConnection;

@@ -1,30 +1,17 @@
-const { DataTypes, literal } = require("sequelize");
-const db = require("../index");
+const { Schema, model } = require("mongoose");
 
-const PortUsed = db.define(
-	"PortUsed",
+const PortUsed = new Schema(
 	{
 		portNumber: {
-			type: DataTypes.NUMBER,
-			allowNull: false,
-		},
-		id: {
-			type: DataTypes.UUIDV4,
-			unique: true,
-			primaryKey: true,
-			allowNull: false,
-			defaultValue: literal("gen_random_uuid()"),
+			type: Number,
+			required: true,
 		},
 		projectId: {
-			type: DataTypes.UUIDV4,
-			unique: true,
-			allowNull: false,
+			type: Schema.Types.ObjectId,
+			ref: "Project",
 		},
 	},
-	{
-		timestamps: true,
-		tableName: "PortsUsed",
-	}
+	{ timestamps: true }
 );
 
-module.exports = PortUsed;
+module.exports = model("PortUsed", PortUsed);

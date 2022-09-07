@@ -1,40 +1,23 @@
-const { DataTypes, ENUM, literal } = require("sequelize");
-const db = require("../index");
+const { Schema, model } = require("mongoose");
 
-const ProjectFile = require("./ProjectFile");
-const PortUsed = require("./PortUsed");
-
-const Project = db.define(
-	"Project",
+const Project = new Schema(
 	{
 		projectName: {
-			type: DataTypes.STRING,
-			allowNull: false,
-		},
-		id: {
-			type: DataTypes.UUIDV4,
-			unique: true,
-			primaryKey: true,
-			allowNull: false,
-			defaultValue: literal("gen_random_uuid()"),
+			type: String,
+			required: true,
 		},
 		createdBy: {
-			type: DataTypes.UUIDV4,
-			allowNull: true,
+			type: String,
+			default: "",
 		},
 		template: {
-			type: ENUM("CRA", "Next.js"),
-			allowNull: false,
-			defaultValue: "CRA",
+			type: String,
+			enum: ["CRA"],
+			required: true,
+			default: "CRA",
 		},
 	},
-	{
-		timestamps: true,
-		tableName: "Projects",
-	}
+	{ timestamps: true }
 );
 
-Project.hasMany(ProjectFile, { foreignKey: "projectId" });
-Project.hasOne(PortUsed, { foreignKey: "projectId" });
-
-module.exports = Project;
+module.exports = model("Project", Project);

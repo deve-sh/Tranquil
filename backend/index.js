@@ -5,6 +5,8 @@ const { createServer } = require("http");
 const socket = require("socket.io");
 const cors = require("cors");
 
+const setupMongoDBConnection = require("../common/db");
+
 // Routers
 const filesRouter = require("./routes/files");
 const projectsRouter = require("./routes/projects");
@@ -29,4 +31,6 @@ app.use("/files", filesRouter);
 app.use("/projects", projectsRouter);
 
 const PORT = process.env.PORT || 8080;
-server.listen(PORT, () => console.log("App running at port: ", PORT));
+setupMongoDBConnection().then(() =>
+	server.listen(PORT, () => console.log("App running at port: ", PORT))
+);

@@ -18,6 +18,6 @@
   },
   "homepage": "https://github.com/deve-sh/real-time-online-dev-env#readme",
   "dependencies": {
-    "pg": "^8.8.0"
+    "mongoose": "^6.5.4"
   }
 }

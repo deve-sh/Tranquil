@@ -1,34 +1,22 @@
-const { DataTypes, literal } = require("sequelize");
-const db = require("../index");
+const { Schema, model } = require("mongoose");
 
-const ProjectFile = db.define(
-	"ProjectFile",
+const ProjectFile = new Schema(
 	{
-		id: {
-			type: DataTypes.UUIDV4,
-			unique: true,
-			primaryKey: true,
-			allowNull: false,
-			defaultValue: literal("gen_random_uuid()"),
-		},
 		projectId: {
-			type: DataTypes.UUIDV4,
-			unique: true,
-			primaryKey: true,
+			type: Schema.Types.ObjectId,
+			required: true,
+			ref: "Project",
 		},
 		contents: {
-			type: DataTypes.STRING,
-			defaultValue: "",
+			type: String,
+			default: "",
 		},
 		path: {
-			type: DataTypes.STRING,
-			allowNull: false,
+			type: String,
+			required: true,
 		},
 	},
-	{
-		timestamps: true,
-		tableName: "ProjectFiles",
-	}
+	{ timestamps: true }
 );
 
-module.exports = ProjectFile;
+module.exports = model("ProjectFile", ProjectFile);
