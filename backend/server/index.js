@@ -2,6 +2,9 @@ import express from "express";
 import { createServer } from "http";
 import socket from "socket.io";
 import cors from "cors";
+import { config } from "dotenv";
+
+config();
 
 // Routers
 import filesRouter from "./routes/files";
