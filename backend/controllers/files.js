@@ -27,19 +27,44 @@ module.exports.getFileContents = async (req, res) => {
 	}
 };
 
-module.exports.updateFile = (req, res) => {
-	// operation -> update, delete, create
-	// if newContent is null, that also technically equates to a delete operation.
-	const { fileId, newContent, operation = "update" } = req.body;
+module.exports.updateFile = async (req, res) => {
+	try {
+		// operation -> update, delete, create
+		// if newContent is null, that also technically equates to a delete operation.
+		const { fileId, path, newContent, operation = "update" } = req.body;
+		const { projectId } = req.params;
 
-	switch (operation) {
-		case "create":
-			return res.sendStatus(201);
-		case "delete":
-			return res.sendStatus(204);
-		case "update":
-			return res.sendStatus(200);
-		default:
-			return res.sendStatus(200);
+		switch (operation) {
+			case "create":
+				const fileToCreate = new ProjectFile({
+					path,
+					contents: newContent,
+					projectId,
+				});
+				await fileToCreate.save();
+				return res
+					.status(201)
+					.json({ message: "Created File Successfully", file: fileToCreate });
+			case "delete":
+			case "update":
+				const file = await ProjectFile.findById(fileId);
+				if (operation === "delete") {
+					if (file) await file.delete();
+					return res.sendStatus(204);
+				} else {
+					if (file) {
+						file.contents = newContent || "";
+						await file.save();
+						return res.sendStatus(200);
+					}
+					return res.sendStatus(404);
+				}
+			default:
+				return res.sendStatus(200);
+		}
+	} catch (err) {
+		return res
+			.status(500)
+			.json({ message: err.message, error: "Internal Server Error" });
 	}
 };
