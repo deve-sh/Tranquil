@@ -11,6 +11,13 @@ const server = http.createServer(app);
 app.use(cors());
 app.get("/", (_, res) => res.sendFile(__dirname + "/tryout/index.html"));
 
+// Controllers and API Routes
+const initializeProject = require("./controllers/initializeProject");
+const shutdownProject = require("./controllers/shutdownProject");
+
+app.post("/api/initializeproject/:projectId", initializeProject);
+app.post("/api/shutdownproject/:projectId", shutdownProject);
+
 // Socket
 const io = new Server(server, { cors: { origin: "*" } });
 
