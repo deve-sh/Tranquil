@@ -31,8 +31,8 @@ module.exports.updateFile = async (req, res) => {
 	try {
 		// operation -> update, delete, create
 		// if newContent is null, that also technically equates to a delete operation.
-		const { fileId, path, newContent, operation = "update" } = req.body;
-		const { projectId } = req.params;
+		const { path, newContent, operation = "update" } = req.body;
+		const { fileId, projectId } = req.params;
 
 		switch (operation) {
 			case "create":
@@ -54,6 +54,7 @@ module.exports.updateFile = async (req, res) => {
 				} else {
 					if (file) {
 						file.contents = newContent || "";
+						file.path = path;
 						await file.save();
 						return res.sendStatus(200);
 					}
