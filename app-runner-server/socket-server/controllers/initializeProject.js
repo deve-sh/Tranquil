@@ -1,4 +1,5 @@
 const fse = require("fs-extra");
+const path = require("path");
 
 const getAllFilesForProject = require("../../../common/operations/getAllFilesForProject");
 const isProjectRunningOnServer = require("../utils/isProjectRunningOnServer");
@@ -9,6 +10,7 @@ const initializeProject = async (req, res) => {
 
 		// Check if project is already running on server.
 		const isProjectAlreadyRunning = await isProjectRunningOnServer(projectId);
+		console.log({ isProjectAlreadyRunning });
 		if (isProjectAlreadyRunning)
 			return res.json({ message: "Project is already running on server." });
 
@@ -18,7 +20,10 @@ const initializeProject = async (req, res) => {
 			for (let file of projectFiles) {
 				fileCreationPromises.push(
 					fse.outputFile(
-						`running-projects/${projectId}/${file.path}`,
+						path.resolve(
+							process.cwd(),
+							`../running-projects/${projectId}/${file.path}`
+						),
 						file.contents
 					)
 				);

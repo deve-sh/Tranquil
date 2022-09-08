@@ -52,6 +52,9 @@ io.on("connection", (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () =>
-	console.log("Socket Manager Server Running on port: ", PORT)
+const setupDatabaseConnection = require("../../common/db");
+setupDatabaseConnection().then(() =>
+	server.listen(PORT, () =>
+		console.log("Socket Manager Server Running on port: ", PORT)
+	)
 );
