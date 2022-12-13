@@ -19,6 +19,7 @@ app.use((req, _, next) => {
 // Routers
 const filesRouter = require("./routes/files");
 const projectsRouter = require("./routes/projects");
+const rceRouter = require("./routes/rce");
 
 // Socket Server to Client-side browsers and devices
 require("./socket/socketServerToBrowser");
@@ -26,6 +27,7 @@ require("./socket/socketServerToBrowser");
 // Routes
 app.use("/files", filesRouter);
 app.use("/projects", projectsRouter);
+app.use("/rce", rceRouter);
 
 const PORT = process.env.PORT || 8080;
 setupMongoDBConnection().then(() =>

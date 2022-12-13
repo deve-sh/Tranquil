@@ -1,0 +1,56 @@
+<html>
+	<head>
+		<title>Try at Real Time Updates</title>
+		<script src="/socket.io/socket.io.js" async></script>
+	</head>
+	<body>
+		<textarea id="filecontents" rows="20" cols="70">
+const express = require("express");
+const cors = require("cors");
+
+const port = process.env.PORT || 4567;
+
+const app = express();
+
+app.use(cors());
+
+app.get("/", (req, res) => {
+	res.send("Hey there from trial app");
+});
+
+app.listen(port, () => console.log("Listening at port ", port));
+        </textarea
+		>
+		<br />
+		<iframe
+			id="externaliframe"
+			src="http://localhost:4567"
+			title="Trial App"
+		></iframe>
+
+		<script type="text/javascript" defer>
+			window.onload = function () {
+				const socket = io();
+				let debouncingTimeout;
+
+				const fileContentsTextarea = document.getElementById("filecontents");
+				fileContentsTextarea.addEventListener("input", (e) => {
+					const newContents = e.target.value;
+					if (debouncingTimeout) clearTimeout(debouncingTimeout);
+					debouncingTimeout = setTimeout(() => {
+						socket.emit("filechange", {
+							projectId: "trial-app",
+							fileName: "index.js",
+							newContents,
+						});
+					}, 500);
+				});
+
+				socket.on("fileupdatesuccess", () => {
+					// Update the iframe
+					document.getElementById("externaliframe").src += "";
+				});
+			};
+		</script>
+	</body>
+</html>
