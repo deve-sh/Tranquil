@@ -1,7 +1,5 @@
 const ProjectFile = require("../../common/db/models/ProjectFile");
-const {
-	socketInstance: socketClientForRunnerInstance,
-} = require("../socket/socketClientForRunner");
+const updateFileInRunningProject = require("../utils/updateFileInRunningProject");
 
 module.exports.getProjectFileList = async (req, res) => {
 	try {
@@ -68,12 +66,10 @@ module.exports.updateFile = async (req, res) => {
 				break;
 		}
 
-		// Send this event to the runner server to update accordingly and send back an HMR response later on.
-		socketClientForRunnerInstance.emit("filechange", {
-			projectId,
-			path,
+		await updateFileInRunningProject(projectId, {
 			operation,
 			newContent,
+			path,
 		});
 	} catch (err) {
 		return res

@@ -69,3 +69,4 @@ exports.files = (projectName) => [
 
 exports.startCommand = "npm run start";
 exports.buildCommand = "npm run build";
+exports.installCommand = "npm install";

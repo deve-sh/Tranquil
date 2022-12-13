@@ -1,12 +1,28 @@
 const { execSync } = require("child_process");
 const fse = require("fs-extra");
 const path = require("path");
+const Project = require("../../common/db/models/Project");
 
 const isProjectRunningOnServer = require("../utils/isProjectRunningOnServer");
 
 module.exports.initializeProject = async (req, res) => {
 	try {
 		const { projectId } = req.params;
+
+		const projectFromDatabase = await Project.findOne({ _id: projectId });
+		if (!projectFromDatabase)
+			return res.status(404).json({ error: "Project not found." });
+
+		let installCommand, startCommand;
+		try {
+			const { template } = projectFromDatabase;
+			const templateInfo = require(`../../common/boilerplates/${template}`);
+
+			installCommand = templateInfo.installCommand;
+			startCommand = templateInfo.startCommand;
+		} catch {
+			return res.status(400).json({ error: "Invalid or unsupported project." });
+		}
 
 		// Check if project is already running on server.
 		const isProjectAlreadyRunning = isProjectRunningOnServer(projectId);
@@ -38,7 +54,7 @@ module.exports.initializeProject = async (req, res) => {
 				`PORT=${Number(portForProject)}`
 			);
 			execSync(
-				`cd ${projectFolderPath} && npm install && PORT=${portForProject} npm run dev`,
+				`cd ${projectFolderPath} && npm install && PORT=${portForProject} ${startCommand}`,
 				{ stdio: "inherit" }
 			);
 		}
