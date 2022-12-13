@@ -1,9 +1,8 @@
-const { execSync } = require("child_process");
 const fse = require("fs-extra");
-const path = require("path");
 const Project = require("../../common/db/models/Project");
 
 const isProjectRunningOnServer = require("../utils/isProjectRunningOnServer");
+const spawnAppProcess = require("../utils/spawnAppProcess");
 
 module.exports.initializeProject = async (req, res) => {
 	try {
@@ -28,12 +27,13 @@ module.exports.initializeProject = async (req, res) => {
 		// Check if project is already running on server.
 		const isProjectAlreadyRunning = isProjectRunningOnServer(projectId);
 		if (isProjectAlreadyRunning)
-			return res.json({ message: "Project is already running on server." });
+			return res.json({
+				message: "Project is already running on server.",
+				alreadyRunning: true,
+			});
 
-		const projectFolderPath = path.resolve(
-			process.cwd(),
-			"../running-projects/" + projectId
-		);
+		const getRunningProjectPath = require("../utils/getRunningProjectPath");
+		const projectFolderPath = getRunningProjectPath();
 
 		const generateRandomPortNumber = require("../utils/generateRandomPortNumber");
 		const getAllFilesForProject = require("../../common/operations/getAllFilesForProject");
@@ -47,18 +47,28 @@ module.exports.initializeProject = async (req, res) => {
 			}
 			await Promise.all(fileCreationPromises);
 		}
+
 		// Run npm install and then start the project on a port
 		const portForProject = await generateRandomPortNumber(projectId);
-		if (portForProject) {
-			fse.writeFileSync(
-				path.resolve(projectFolderPath, ".env"),
-				`PORT=${Number(portForProject)}`
-			);
-			execSync(
-				`cd ${projectFolderPath} && npm install && PORT=${portForProject} ${startCommand}`,
-				{ stdio: "inherit" }
-			);
-		}
+
+		if (!portForProject)
+			return res.json({
+				message: "Project might already be running.",
+				alreadyRunning: true,
+			});
+
+		spawnAppProcess({
+			projectId,
+			installCommand,
+			startCommand,
+			environmentVars: { ...process.env, PORT: portForProject },
+			onDataStream: (data) => {
+				console.log(`child stdout:\n${data}`);
+			},
+			onErrorStream: (data) => {
+				console.error(`child stderr:\n${data}`);
+			},
+		});
 		return res.json({
 			message: "Project Initialized Successfully at port: " + portForProject,
 			port: portForProject,
