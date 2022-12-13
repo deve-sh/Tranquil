@@ -22,32 +22,16 @@ app.post("/api/shutdownproject/:projectId", shutdownProject);
 const io = new Server(server, { cors: { origin: "*" } });
 
 io.on("connection", (socket) => {
-	console.log("a user connected", socket.id);
-	socket.on("disconnect", () => {
-		console.log("user disconnected", socket.id);
-	});
 	socket.on("filechange", (data) => {
 		if (!data) return;
 
-		const projectId = data.projectId;
-		const fileName = data.fileName;
-		const newContents = data.newContents;
+		const { projectId, path, operation, newContent } = data;
 
-		if (!projectId || !fileName || !newContents) return;
+		if (!projectId || !path) return;
 
-		fse
-			.writeFile(`../running-projects/${projectId}/${fileName}`, newContents)
-			.then(() => {
-				setTimeout(() => {
-					socket.emit("fileupdatesuccess", {
-						fileName,
-						projectId,
-					});
-				}, 750);
-			})
-			.catch((error) => {
-				socket.emit("fileupdateerror", error);
-			});
+		if (operation === "delete")
+			fse.unlink(`../running-projects/${projectId}/${path}`);
+		fse.writeFile(`../running-projects/${projectId}/${path}`, newContent);
 	});
 });
 

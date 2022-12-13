@@ -1,4 +1,7 @@
 const ProjectFile = require("../../common/db/models/ProjectFile");
+const {
+	socketInstance: socketClientForRunnerInstance,
+} = require("../socket/socketClientForRunner");
 
 module.exports.getProjectFileList = async (req, res) => {
 	try {
@@ -30,7 +33,6 @@ module.exports.getFileContents = async (req, res) => {
 module.exports.updateFile = async (req, res) => {
 	try {
 		// operation -> update, delete, create
-		// if newContent is null, that also technically equates to a delete operation.
 		const { path, newContent, operation = "update" } = req.body;
 		const { fileId, projectId } = req.params;
 
@@ -42,27 +44,37 @@ module.exports.updateFile = async (req, res) => {
 					projectId,
 				});
 				await fileToCreate.save();
-				return res
+				res
 					.status(201)
 					.json({ message: "Created File Successfully", file: fileToCreate });
+				break;
 			case "delete":
+				const fileToDelete = await ProjectFile.findById(fileId);
+				if (fileToDelete) await fileToDelete.delete();
+				res.sendStatus(204);
+				break;
 			case "update":
-				const file = await ProjectFile.findById(fileId);
-				if (operation === "delete") {
-					if (file) await file.delete();
-					return res.sendStatus(204);
-				} else {
-					if (file) {
-						file.contents = newContent || "";
-						file.path = path;
-						await file.save();
-						return res.sendStatus(200);
-					}
-					return res.sendStatus(404);
+				const fileToUpdate = await ProjectFile.findById(fileId);
+				if (fileToUpdate) {
+					fileToUpdate.contents = newContent || "";
+					fileToUpdate.path = path;
+					await fileToUpdate.save();
+					res.sendStatus(200);
 				}
+				res.sendStatus(404);
+				break;
 			default:
-				return res.sendStatus(200);
+				res.sendStatus(200);
+				break;
 		}
+
+		// Send this event to the runner server to update accordingly and send back an HMR response later on.
+		socketClientForRunnerInstance.emit("filechange", {
+			projectId,
+			path,
+			operation,
+			newContent,
+		});
 	} catch (err) {
 		return res
 			.status(500)
