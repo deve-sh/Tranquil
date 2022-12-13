@@ -1,6 +1,8 @@
 const fse = require("fs-extra");
+
 const Project = require("../../common/db/models/Project");
 
+const getRunningProjectPath = require("../utils/getRunningProjectPath");
 const isProjectRunningOnServer = require("../utils/isProjectRunningOnServer");
 const spawnAppProcess = require("../utils/spawnAppProcess");
 
@@ -32,7 +34,6 @@ module.exports.initializeProject = async (req, res) => {
 				alreadyRunning: true,
 			});
 
-		const getRunningProjectPath = require("../utils/getRunningProjectPath");
 		const projectFolderPath = getRunningProjectPath();
 
 		const generateRandomPortNumber = require("../utils/generateRandomPortNumber");
@@ -90,8 +91,9 @@ module.exports.shutDownProject = async (req, res) => {
 		if (!isProjectAlreadyRunning)
 			return res.json({ message: "Project is already shut down." });
 
-		fse.emptyDirSync(`running-projects/${projectId}`);
-		fse.rmdirSync(`running-projects/${projectId}`);
+		const projectPath = getRunningProjectPath(projectId);
+		fse.emptyDirSync(projectPath);
+		fse.rmdirSync(projectPath);
 
 		const port = await PortUsed.findOne({ projectId });
 		if (port) {
