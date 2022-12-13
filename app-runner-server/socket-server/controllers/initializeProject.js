@@ -1,7 +1,9 @@
+const { execSync } = require("child_process");
 const fse = require("fs-extra");
 const path = require("path");
 
 const getAllFilesForProject = require("../../../common/operations/getAllFilesForProject");
+const generateRandomPortNumber = require("../utils/generateRandomPortNumber");
 const isProjectRunningOnServer = require("../utils/isProjectRunningOnServer");
 
 const initializeProject = async (req, res) => {
@@ -10,27 +12,42 @@ const initializeProject = async (req, res) => {
 
 		// Check if project is already running on server.
 		const isProjectAlreadyRunning = await isProjectRunningOnServer(projectId);
-		console.log({ isProjectAlreadyRunning });
 		if (isProjectAlreadyRunning)
 			return res.json({ message: "Project is already running on server." });
 
+		const projectFolderPath = path.resolve(
+			process.cwd(),
+			"../running-projects/" + projectId
+		);
 		const projectFiles = await getAllFilesForProject(projectId);
 		if (projectFiles.length) {
 			const fileCreationPromises = [];
 			for (let file of projectFiles) {
 				fileCreationPromises.push(
 					fse.outputFile(
-						path.resolve(
-							process.cwd(),
-							`../running-projects/${projectId}/${file.path}`
-						),
+						path.resolve(projectFolderPath, file.path),
 						file.contents
 					)
 				);
 			}
 			await Promise.all(fileCreationPromises);
 		}
-		return res.json({ message: "Project Initialized Successfully." });
+		// Run npm install and then start the project on a port
+		const portForProject = await generateRandomPortNumber(projectId);
+		if (portForProject) {
+			fse.writeFileSync(
+				path.resolve(projectFolderPath, ".env"),
+				`PORT=${Number(portForProject)}`
+			);
+			execSync(
+				`cd ${projectFolderPath} && npm install && PORT=${portForProject} npm run dev`,
+				{ stdio: "inherit" }
+			);
+		}
+		return res.json({
+			message: "Project Initialized Successfully at port: " + portForProject,
+			port: portForProject,
+		});
 	} catch (err) {
 		return res
 			.status(500)
