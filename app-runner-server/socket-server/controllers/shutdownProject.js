@@ -4,7 +4,7 @@ const killPort = require("kill-port");
 const PortUsed = require("../../../common/db/models/PortUsed");
 const isProjectRunningOnServer = require("../utils/isProjectRunningOnServer");
 
-const initializeProject = async (req, res) => {
+const shutDownProject = async (req, res) => {
 	try {
 		const { projectId } = req.params;
 
@@ -19,7 +19,7 @@ const initializeProject = async (req, res) => {
 		const port = await PortUsed.findOne({ projectId });
 		await killPort(port.portNumber).catch(() => null);
 
-		return res.json({ message: "Project Initialized Successfully." });
+		return res.json({ message: "Project Shut Down Successfully." });
 	} catch (err) {
 		return res
 			.status(500)
@@ -27,4 +27,4 @@ const initializeProject = async (req, res) => {
 	}
 };
 
-module.exports = initializeProject;
+module.exports = shutDownProject;
