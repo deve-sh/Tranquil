@@ -1,14 +1,11 @@
 require("dotenv").config();
 
 const express = require("express");
-const { createServer } = require("http");
-const socket = require("socket.io");
 const cors = require("cors");
 
 const setupMongoDBConnection = require("../common/db");
 
-const app = express();
-const server = createServer(app);
+const { app, server } = require("./express-server");
 
 // Middlewares
 app.use("*", cors());
@@ -23,10 +20,8 @@ app.use((req, _, next) => {
 const filesRouter = require("./routes/files");
 const projectsRouter = require("./routes/projects");
 
-// Socket Server and Controllers
-const setupSocketControllers = require("./controllers/socket");
-const socketServer = socket(server, { cors: { origin: "*" } });
-setupSocketControllers(socketServer);
+// Socket Server to Client-side browsers and devices
+require("./socket/socketServerToBrowser");
 
 // Routes
 app.use("/files", filesRouter);

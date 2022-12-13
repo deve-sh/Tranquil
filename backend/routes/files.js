@@ -1,14 +1,10 @@
 const { Router } = require("express");
-const {
-	getFileContents,
-	getProjectFileList,
-	updateFile,
-} = require("../controllers/files");
+const filesControllers = require("../controllers/files");
 
 const filesRouter = Router();
 
-filesRouter.get("/:projectId", getProjectFileList);
-filesRouter.get("/:projectId/:fileId", getFileContents);
-filesRouter.post("/:projectId/:fileId", updateFile);
+filesRouter.get("/:projectId", filesControllers.getProjectFileList);
+filesRouter.get("/:projectId/:fileId", filesControllers.getFileContents);
+filesRouter.post("/:projectId/:fileId", filesControllers.updateFile);
 
 module.exports = filesRouter;

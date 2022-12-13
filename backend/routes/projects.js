@@ -1,16 +1,11 @@
 const { Router } = require("express");
-const {
-	getUserProjects,
-	createProject,
-	getProjectInfo,
-	updateProject,
-} = require("../controllers/projects");
+const projectControllers = require("../controllers/projects");
 
 const projectsRouter = Router();
 
-projectsRouter.get("/", getUserProjects);
-projectsRouter.get("/:projectId", getProjectInfo);
-projectsRouter.post("/", createProject);
-projectsRouter.put("/:projectId", updateProject);
+projectsRouter.get("/", projectControllers.getUserProjects);
+projectsRouter.get("/:projectId", projectControllers.getProjectInfo);
+projectsRouter.post("/", projectControllers.createProject);
+projectsRouter.put("/:projectId", projectControllers.updateProject);
 
 module.exports = projectsRouter;
