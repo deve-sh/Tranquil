@@ -1,5 +1,4 @@
 const Project = require("../../common/db/models/Project");
-const ProjectFile = require("../../common/db/models/ProjectFile");
 
 module.exports.getUserProjects = (req, res) => {
 	return res.send([]);
@@ -24,12 +23,15 @@ module.exports.createProject = async (req, res) => {
 		return res.status(400).json({ error: "Invalid Payload for project." });
 
 	try {
-		const boilerplate = require(`../../common/boilerplates/${template.toLowerCase()}`);
+		const getTemplateInfo = require("../utils/getTemplateInfo");
+		const boilerplate = getTemplateInfo(template);
 		if (boilerplate && boilerplate.files) {
 			const project = new Project({ projectName, template });
-			const projectFiles = await boilerplate.files(projectName);
+			const projectFilesToCreate = await boilerplate.files(projectName);
+
 			const fileCreationPromises = [];
-			for (const file of projectFiles) {
+			const ProjectFile = require("../../common/db/models/ProjectFile");
+			for (const file of projectFilesToCreate) {
 				const fileToSave = new ProjectFile({ projectId: project._id, ...file });
 				fileCreationPromises.push(fileToSave.save());
 			}

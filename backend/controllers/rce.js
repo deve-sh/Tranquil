@@ -16,7 +16,8 @@ module.exports.initializeProject = async (req, res) => {
 		let installCommand, startCommand;
 		try {
 			const { template } = projectFromDatabase;
-			const templateInfo = require(`../../common/boilerplates/${template}`);
+			const getTemplateInfo = require("../utils/getTemplateInfo");
+			const templateInfo = getTemplateInfo(template);
 
 			installCommand = templateInfo.installCommand;
 			startCommand = templateInfo.startCommand;

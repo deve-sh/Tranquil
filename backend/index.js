@@ -25,9 +25,9 @@ const rceRouter = require("./routes/rce");
 require("./socket/socketServerToBrowser");
 
 // Routes
-app.use("/files", filesRouter);
-app.use("/projects", projectsRouter);
-app.use("/rce", rceRouter);
+app.use("/api/files", filesRouter);
+app.use("/api/projects", projectsRouter);
+app.use("/api/rce", rceRouter);
 
 const PORT = process.env.PORT || 8080;
 setupMongoDBConnection().then(() =>
