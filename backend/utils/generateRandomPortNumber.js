@@ -1,5 +1,5 @@
 const generateRandomPortNumber = async (projectId) => {
-	const PortUsed = require("../../../common/db/models/PortUsed");
+	const PortUsed = require("../../common/db/models/PortUsed");
 	const projectAlreadyRunning = await PortUsed.findOne({ projectId });
 	if (projectAlreadyRunning) return null;
 
