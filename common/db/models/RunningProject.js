@@ -20,6 +20,7 @@ const RunningProject = new Schema(
 			ref: "Project",
 			unique: true,
 		},
+		instanceMetaData: { type: Object, default: {} },
 	},
 	{ timestamps: true }
 );
