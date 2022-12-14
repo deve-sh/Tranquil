@@ -20,13 +20,13 @@ const copyFilesAndStartAppOnInstance = async (
 
 		const ssh = new NodeSSH();
 		await ssh.connect({
-			host: instance.PublicDnsName,
-			username: "root",
-			privateKeyPath: Buffer.from(process.env.AWS_EC2_RUNNER_SSH_KEY_CONTENT),
+			host: instance.PublicIpAddress,
+			username: "ec2-user",
+			privateKey: process.env.AWS_EC2_RUNNER_SSH_KEY_CONTENT,
 		});
 
 		// SSH Connection established, now copy files for the project to the instance.
-		const getAllFilesForProject = require("../../common/operations/getAllFilesForProject");
+		const getAllFilesForProject = require("../../../common/operations/getAllFilesForProject");
 		const projectFiles = await getAllFilesForProject(projectId);
 
 		if (!projectFiles.length)
@@ -54,11 +54,17 @@ const copyFilesAndStartAppOnInstance = async (
 		);
 		await Promise.all(fileDeletionPromises);
 
-		// Install dependencies, run the app directory just created on the remote runner server.
-		const installCommandOutput = await ssh.exec(installCommand);
-		const startCommandOutput = await ssh.exec(startCommand);
+		// Install node.js on the instance.
+		const execCommandOptions = {
+			onStdout: (out) => console.log(out.toString()),
+			onStderr: (err) => console.error(err.toString()),
+		};
 
-		return { data: { installCommandOutput, startCommandOutput } };
+		// Install dependencies, run the app just created on the remote runner server.
+		await ssh.execCommand(installCommand, execCommandOptions);
+		ssh.execCommand(startCommand, execCommandOptions);
+
+		return {};
 	} catch (error) {
 		return { error };
 	}

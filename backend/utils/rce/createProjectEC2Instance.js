@@ -30,16 +30,46 @@ const createProjectEC2Instance = async (projectId) => {
 		const instanceId = instance.InstanceId;
 
 		let nTries = 0;
-		while (!["running"].includes(instance.State.Name) && nTries < 15) {
+		while (instance.State.Name !== "running" && nTries < 15) {
 			// Keep fetching the status of the instance.
-			const filters = {
+			const params = {
 				Filters: [{ Name: "instance-id", Values: [instanceId] }],
 			};
-			const instances = await ec2.describeInstances(filters).promise();
+			const instances = await ec2.describeInstances(params).promise();
 			instance = instances.Reservations[0].Instances[0];
 
 			nTries += 1;
-			await wait(1500); // Wait for 1.5 seconds before trying again.
+			console.log(
+				"Try at getting Running EC2 Instance for project",
+				projectId,
+				":",
+				nTries
+			);
+			await wait(5000); // Wait for 5 seconds before trying again.
+		}
+
+		let instanceStatusChecksPassed = 0;
+		nTries = 0;
+		console.log("Checking instance status for project:", projectId);
+		while (instanceStatusChecksPassed < 2) {
+			const params = { InstanceIds: [instanceId] };
+			const { InstanceStatuses: instanceStatuses } = await ec2
+				.describeInstanceStatus(params)
+				.promise();
+
+			if (instanceStatuses[0].InstanceStatus.Status === "ok")
+				instanceStatusChecksPassed += 1;
+			if (instanceStatuses[0].SystemStatus.Status === "ok")
+				instanceStatusChecksPassed += 1;
+
+			nTries += 1;
+			console.log(
+				"Try at getting healthy EC2 Instance for project",
+				projectId,
+				":",
+				nTries
+			);
+			await wait(10000); // Wait for 10 seconds before trying again.
 		}
 
 		return { data: instance };

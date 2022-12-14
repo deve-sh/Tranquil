@@ -140,7 +140,7 @@ module.exports.initializeProject = async (req, res) => {
 
 		const createProjectEC2Instance = require("../utils/rce/createProjectEC2Instance");
 		const { data: instance, error: errorCreatingInstance } =
-			await createProjectEC2Instance();
+			await createProjectEC2Instance(projectId);
 		if (errorCreatingInstance)
 			return res.status(500).send({ error: errorCreatingInstance.message });
 
@@ -158,6 +158,8 @@ module.exports.initializeProject = async (req, res) => {
 			return res.status(500).send({ error: errorStartingApp.message });
 		}
 
+		console.log("copied files and started application on EC2");
+
 		// Save this project's status in DB
 		const newProjectRunningDoc = new RunningProject({
 			publicIP: instance.PublicIpAddress,
@@ -167,6 +169,7 @@ module.exports.initializeProject = async (req, res) => {
 			instanceMetaData: instance, // For any arising use case later
 		});
 		await newProjectRunningDoc.save();
+		console.log(instance.PublicDnsName, instance.PublicIpAddress);
 		return res.json({
 			message: "Project initialized successfully",
 			publicIP: instance.PublicIpAddress,
