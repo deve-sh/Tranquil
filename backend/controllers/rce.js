@@ -1,7 +1,6 @@
 const fse = require("fs-extra");
 
 const Project = require("../../common/db/models/Project");
-const createProjectEC2Instance = require("../utils/rce/createProjectEC2Instance");
 
 module.exports.initializeProjectLocally = async (req, res) => {
 	try {
@@ -139,28 +138,40 @@ module.exports.initializeProject = async (req, res) => {
 				publicURL: runningProjectDocInDB.publicURL,
 			});
 
-		const { data: instance, error } = await createProjectEC2Instance();
-		if (error) return res.status(500).send({ error: error.message });
+		const createProjectEC2Instance = require("../utils/rce/createProjectEC2Instance");
+		const { data: instance, error: errorCreatingInstance } =
+			await createProjectEC2Instance();
+		if (errorCreatingInstance)
+			return res.status(500).send({ error: errorCreatingInstance.message });
 
-		if (instance.PublicDnsName && instance.PublicIpAddress) {
-			// Save this project's status in DB
-			const newProjectRunningDoc = new RunningProject({
-				publicIP: instance.PublicIpAddress,
-				publicURL: instance.PublicDnsName,
-				projectId,
-				machineId: instance.InstanceId,
-			});
-			await newProjectRunningDoc.save();
-			return res.json({
-				message: "Project initialized successfully",
-				publicIP: instance.PublicIpAddress,
-				publicURL: instance.PublicDnsName,
-			});
+		const copyFilesAndStartAppOnInstance = require("../utils/rce/copyFilesAndStartAppOnInstance");
+		const { template } = projectFromDatabase;
+		const { error: errorStartingApp } = await copyFilesAndStartAppOnInstance(
+			projectId,
+			template,
+			instance
+		);
+
+		if (errorStartingApp) {
+			const shutDownProjectEC2Instance = require("../utils/rce/shutDownEC2Instance");
+			await shutDownProjectEC2Instance(instance.InstanceId);
+			return res.status(500).send({ error: errorStartingApp.message });
 		}
 
-		return res
-			.status(500)
-			.json({ error: "Something went wrong. Please try again later." });
+		// Save this project's status in DB
+		const newProjectRunningDoc = new RunningProject({
+			publicIP: instance.PublicIpAddress,
+			publicURL: instance.PublicDnsName,
+			projectId,
+			machineId: instance.InstanceId,
+			instanceMetaData: instance, // For any arising use case later
+		});
+		await newProjectRunningDoc.save();
+		return res.json({
+			message: "Project initialized successfully",
+			publicIP: instance.PublicIpAddress,
+			publicURL: instance.PublicDnsName,
+		});
 	} catch (err) {
 		return res
 			.status(500)
