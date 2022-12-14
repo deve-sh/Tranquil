@@ -1,5 +1,5 @@
 const ProjectFile = require("../../common/db/models/ProjectFile");
-const updateFileInRunningProject = require("../utils/updateFileInRunningProject");
+const updateFileInRunningProject = require("../utils/rce-local/updateFileInRunningProject");
 
 module.exports.getProjectFileList = async (req, res) => {
 	try {
