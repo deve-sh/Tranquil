@@ -2,9 +2,9 @@ const fse = require("fs-extra");
 
 const Project = require("../../common/db/models/Project");
 
-const getRunningProjectPath = require("../utils/getRunningProjectPath");
-const isProjectRunningOnServer = require("../utils/isProjectRunningOnServer");
-const spawnAppProcess = require("../utils/spawnAppProcess");
+const getRunningProjectPath = require("../utils/rce-local/getRunningProjectPath");
+const isProjectRunningOnServer = require("../utils/rce-local/isProjectRunningOnServer");
+const spawnAppProcess = require("../utils/rce-local/spawnAppProcess");
 
 module.exports.initializeProject = async (req, res) => {
 	try {
@@ -36,7 +36,7 @@ module.exports.initializeProject = async (req, res) => {
 
 		const projectFolderPath = getRunningProjectPath();
 
-		const generateRandomPortNumber = require("../utils/generateRandomPortNumber");
+		const generateRandomPortNumber = require("../utils/rce-local/generateRandomPortNumber");
 		const getAllFilesForProject = require("../../common/operations/getAllFilesForProject");
 		const projectFiles = await getAllFilesForProject(projectId);
 		if (projectFiles.length) {
@@ -64,12 +64,15 @@ module.exports.initializeProject = async (req, res) => {
 			startCommand,
 			environmentVars: { ...process.env, PORT: portForProject },
 			onDataStream: (data) => {
+				// todo: Stream these logs to connected client devices.
 				console.log(`child stdout:\n${data}`);
 			},
 			onErrorStream: (data) => {
+				// todo: Stream these logs to connected client devices.
 				console.error(`child stderr:\n${data}`);
 			},
 		});
+		// todo: Connect to HMR server for the started up project.
 		return res.json({
 			message: "Project Initialized Successfully at port: " + portForProject,
 			port: portForProject,
