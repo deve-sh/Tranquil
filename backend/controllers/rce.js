@@ -1,12 +1,9 @@
 const fse = require("fs-extra");
 
 const Project = require("../../common/db/models/Project");
+const createProjectEC2Instance = require("../utils/rce/createProjectEC2Instance");
 
-const getRunningProjectPath = require("../utils/rce-local/getRunningProjectPath");
-const isProjectRunningOnServer = require("../utils/rce-local/isProjectRunningOnServer");
-const spawnAppProcess = require("../utils/rce-local/spawnAppProcess");
-
-module.exports.initializeProject = async (req, res) => {
+module.exports.initializeProjectLocally = async (req, res) => {
 	try {
 		const { projectId } = req.params;
 
@@ -27,6 +24,7 @@ module.exports.initializeProject = async (req, res) => {
 		}
 
 		// Check if project is already running on server.
+		const isProjectRunningOnServer = require("../utils/rce-local/isProjectRunningOnServer");
 		const isProjectAlreadyRunning = isProjectRunningOnServer(projectId);
 		if (isProjectAlreadyRunning)
 			return res.json({
@@ -34,6 +32,7 @@ module.exports.initializeProject = async (req, res) => {
 				alreadyRunning: true,
 			});
 
+		const getRunningProjectPath = require("../utils/rce-local/getRunningProjectPath");
 		const projectFolderPath = getRunningProjectPath();
 
 		const generateRandomPortNumber = require("../utils/rce-local/generateRandomPortNumber");
@@ -58,6 +57,7 @@ module.exports.initializeProject = async (req, res) => {
 				alreadyRunning: true,
 			});
 
+		const spawnAppProcess = require("../utils/rce-local/spawnAppProcess");
 		spawnAppProcess({
 			projectId,
 			installCommand,
@@ -84,20 +84,22 @@ module.exports.initializeProject = async (req, res) => {
 	}
 };
 
-module.exports.shutDownProject = async (req, res) => {
+module.exports.shutDownProjectLocally = async (req, res) => {
 	try {
 		const { projectId } = req.params;
 
 		// Check if project is already running on server.
-		const PortUsed = require("../../common/db/models/PortUsed");
+		const isProjectRunningOnServer = require("../utils/rce-local/isProjectRunningOnServer");
 		const isProjectAlreadyRunning = isProjectRunningOnServer(projectId);
 		if (!isProjectAlreadyRunning)
 			return res.json({ message: "Project is already shut down." });
 
+		const getRunningProjectPath = require("../utils/rce-local/getRunningProjectPath");
 		const projectPath = getRunningProjectPath(projectId);
 		fse.emptyDirSync(projectPath);
 		fse.rmdirSync(projectPath);
 
+		const PortUsed = require("../../common/db/models/PortUsed");
 		const port = await PortUsed.findOne({ projectId });
 		if (port) {
 			const killPort = require("kill-port");
@@ -106,6 +108,81 @@ module.exports.shutDownProject = async (req, res) => {
 				port.delete(),
 			]);
 		}
+
+		return res.json({ message: "Project Shut Down Successfully." });
+	} catch (err) {
+		return res
+			.status(500)
+			.json({ message: err.message, error: "Internal Server Error" });
+	}
+};
+
+/**
+ * The real deal. Initializing and Stopping of projects on an EC2 instance.
+ */
+module.exports.initializeProject = async (req, res) => {
+	try {
+		const { projectId } = req.params;
+
+		const projectFromDatabase = await Project.findOne({ _id: projectId });
+		if (!projectFromDatabase)
+			return res.status(404).json({ error: "Project not found." });
+
+		// Check if project is running on an instance
+		const RunningProject = require("../../common/db/models/RunningProject");
+		const runningProjectDocInDB = await RunningProject.findOne({ projectId });
+
+		if (runningProjectDocInDB)
+			return res.json({
+				message: "Project is already running",
+				publicIP: runningProjectDocInDB.publicIP,
+				publicURL: runningProjectDocInDB.publicURL,
+			});
+
+		const { data: instance, error } = await createProjectEC2Instance();
+		if (error) return res.status(500).send({ error: error.message });
+
+		if (instance.PublicDnsName && instance.PublicIpAddress) {
+			// Save this project's status in DB
+			const newProjectRunningDoc = new RunningProject({
+				publicIP: instance.PublicIpAddress,
+				publicURL: instance.PublicDnsName,
+				projectId,
+				machineId: instance.InstanceId,
+			});
+			await newProjectRunningDoc.save();
+			return res.json({
+				message: "Project initialized successfully",
+				publicIP: instance.PublicIpAddress,
+				publicURL: instance.PublicDnsName,
+			});
+		}
+
+		return res
+			.status(500)
+			.json({ error: "Something went wrong. Please try again later." });
+	} catch (err) {
+		return res
+			.status(500)
+			.json({ message: err.message, error: "Internal Server Error" });
+	}
+};
+
+module.exports.shutDownProject = async (req, res) => {
+	try {
+		const { projectId } = req.params;
+
+		// Check if project is actually running on an EC2 server.
+		const RunningProject = require("../../common/db/models/RunningProject");
+		const runningProjectDocInDB = await RunningProject.findOne({ projectId });
+
+		if (!runningProjectDocInDB || !runningProjectDocInDB.machineId)
+			return res.json({ message: "Project is already shut down" });
+
+		const shutDownProjectEC2Instance = require("../utils/rce/shutDownEC2Instance");
+
+		await shutDownProjectEC2Instance(runningProjectDocInDB.machineId);
+		await runningProjectDocInDB.delete();
 
 		return res.json({ message: "Project Shut Down Successfully." });
 	} catch (err) {
