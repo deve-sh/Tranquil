@@ -1,4 +1,4 @@
-const createProjectEC2Instance = async () => {
+const createProjectEC2Instance = async (projectId) => {
 	try {
 		const ec2 = require("../../aws/ec2");
 		const wait = require("../wait");
@@ -10,6 +10,17 @@ const createProjectEC2Instance = async () => {
 			SecurityGroupIds: [process.env.AWS_EC2_RUNNER_SECURITY_GROUP_ID],
 			MinCount: 1,
 			MaxCount: 1,
+			TagSpecifications: [
+				{
+					ResourceType: "instance",
+					Tags: [
+						{
+							Key: "Name",
+							Value: `Project-${projectId}`,
+						},
+					],
+				},
+			],
 		};
 
 		const { Instances } = await ec2
