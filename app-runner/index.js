@@ -23,9 +23,10 @@ if (projectId && installCommand && startCommand && broadCastSecret) {
 	socket.on("connect", () => {
 		// Connected to backend via socket.
 		// Spawn app install and runner processes.
-		const appRunningProcess = spawn(`${installCommand} && ${startCommand}`, {
-			shell: true,
-		});
+		const appRunningProcess = spawn(
+			`cd ./app && ${installCommand} && ${startCommand}`,
+			{ shell: true }
+		);
 		appRunningProcess.stdout.on("data", (data) => {
 			const logString = data.toString().trim();
 			if (logString.length) {
@@ -67,5 +68,7 @@ if (projectId && installCommand && startCommand && broadCastSecret) {
 				});
 			}
 		});
+
+		// todo: Add project file updation related socket event as well.
 	});
 }
