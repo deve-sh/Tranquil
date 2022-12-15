@@ -153,7 +153,7 @@ module.exports.initializeProject = async (req, res) => {
 		if (errorCreatingInstance)
 			return sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
 				step: "instance-creation-failed",
-				error: errorCreatingInstance,
+				error: errorCreatingInstance.message,
 			});
 
 		sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
@@ -176,7 +176,7 @@ module.exports.initializeProject = async (req, res) => {
 			await shutDownProjectEC2Instance(instance.InstanceId);
 			return sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
 				step: "app-setup-failed",
-				error: errorStartingApp,
+				error: errorStartingApp.message,
 			});
 		}
 
