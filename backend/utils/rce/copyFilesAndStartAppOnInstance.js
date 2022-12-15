@@ -12,7 +12,7 @@ const copyFilesAndStartAppOnInstance = async (
 		if (templateInfo.deprecated)
 			return { error: new Error("Project template no longer supported.") };
 
-		const { PROJECT_INIT_UPDATE } = require("../../socket/types");
+		const { PROJECT_INIT_UPDATE } = require("../../../common/socketTypes");
 		const { NodeSSH } = require("node-ssh");
 		const fse = require("fs-extra");
 

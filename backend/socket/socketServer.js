@@ -2,13 +2,16 @@ const { server: expressServer } = require("../express-server");
 
 const socketIO = require("socket.io");
 
-const { LISTEN_TO_PROJECT, BROADCAST_TO_PROJECT } = require("./types");
+const {
+	LISTEN_TO_PROJECT,
+	BROADCAST_TO_PROJECT,
+} = require("../../common/socketTypes");
 
-const socketServerToBrowser = socketIO(expressServer, {
+const socketServer = socketIO(expressServer, {
 	cors: { origin: "*" },
 });
 
-socketServerToBrowser.on("connection", (client) => {
+socketServer.on("connection", (client) => {
 	client.on(LISTEN_TO_PROJECT, (event) => {
 		if (!event || !event.projectId) return;
 		// Make the device socket connection join a room specific to this project id.
@@ -29,9 +32,9 @@ socketServerToBrowser.on("connection", (client) => {
 			!typeof event.data === "object"
 		)
 			return;
-		socketServerToBrowser.to(event.projectId, event.data);
+		socketServer.to(event.projectId, event.data);
 	});
 	client.on("end", () => client.disconnect(0));
 });
 
-module.exports = socketServerToBrowser;
+module.exports = socketServer;

@@ -1,6 +1,6 @@
-const socketServerToBrowser = require("./socketServerToBrowser");
+const socketServer = require("./socketServer");
 
 const sendMessageToProjectSocketRoom = (projectId, messageId, messagePayload) =>
-	socketServerToBrowser.to(projectId).emit(messageId, messagePayload);
+	socketServer.to(projectId).emit(messageId, messagePayload);
 
 module.exports = sendMessageToProjectSocketRoom;

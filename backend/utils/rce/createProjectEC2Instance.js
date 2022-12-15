@@ -4,7 +4,7 @@ const createProjectEC2Instance = async (projectId) => {
 		const wait = require("../wait");
 
 		const sendMessageToProjectSocketRoom = require("../../socket/sendMessageToProjectSocketRoom");
-		const { PROJECT_INIT_UPDATE } = require("../../socket/types");
+		const { PROJECT_INIT_UPDATE } = require("../../../common/socketTypes");
 
 		const instanceCreationParams = {
 			ImageId: process.env.AWS_EC2_RUNNER_IMAGE_ID,

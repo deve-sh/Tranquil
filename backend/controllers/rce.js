@@ -139,7 +139,7 @@ module.exports.initializeProject = async (req, res) => {
 				publicURL: runningProjectDocInDB.publicURL,
 			});
 
-		const { PROJECT_INIT_UPDATE } = require("../socket/types");
+		const { PROJECT_INIT_UPDATE } = require("../../common/socketTypes");
 
 		res.json({ message: "Project initialization started" });
 
@@ -221,7 +221,7 @@ module.exports.shutDownProject = async (req, res) => {
 		await shutDownProjectEC2Instance(runningProjectDocInDB.machineId);
 		await runningProjectDocInDB.delete();
 
-		const { PROJECT_SHUT_DOWN } = require("../socket/types");
+		const { PROJECT_SHUT_DOWN } = require("../../common/socketTypes");
 		sendMessageToProjectSocketRoom(projectId, PROJECT_SHUT_DOWN, {});
 
 		return res.json({ message: "Project Shut Down Successfully." });
