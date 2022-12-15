@@ -1,6 +1,7 @@
 const fse = require("fs-extra");
 
 const Project = require("../../common/db/models/Project");
+const sendMessageToProjectSocketRoom = require("../socket/sendMessageToProjectSocketRoom");
 
 module.exports.initializeProjectLocally = async (req, res) => {
 	try {
@@ -138,14 +139,29 @@ module.exports.initializeProject = async (req, res) => {
 				publicURL: runningProjectDocInDB.publicURL,
 			});
 
+		res.json({ message: "Project initialization started" });
+		sendMessageToProjectSocketRoom(projectId, "project_initialization_update", {
+			step: "instance-creation",
+		});
 		const createProjectEC2Instance = require("../utils/rce/createProjectEC2Instance");
 		const { data: instance, error: errorCreatingInstance } =
 			await createProjectEC2Instance(projectId);
 		if (errorCreatingInstance)
-			return res.status(500).send({ error: errorCreatingInstance.message });
+			return sendMessageToProjectSocketRoom(
+				projectId,
+				"project_initialization_update",
+				{ step: "instance-creation-failed" }
+			);
+
+		sendMessageToProjectSocketRoom(projectId, "project_initialization_update", {
+			step: "instance-creation-successful",
+		});
 
 		const copyFilesAndStartAppOnInstance = require("../utils/rce/copyFilesAndStartAppOnInstance");
 		const { template } = projectFromDatabase;
+		sendMessageToProjectSocketRoom(projectId, "project_initialization_update", {
+			step: "app-setup-started",
+		});
 		const { error: errorStartingApp } = await copyFilesAndStartAppOnInstance(
 			projectId,
 			template,
@@ -155,10 +171,16 @@ module.exports.initializeProject = async (req, res) => {
 		if (errorStartingApp) {
 			const shutDownProjectEC2Instance = require("../utils/rce/shutDownEC2Instance");
 			await shutDownProjectEC2Instance(instance.InstanceId);
-			return res.status(500).send({ error: errorStartingApp.message });
+			return sendMessageToProjectSocketRoom(
+				projectId,
+				"project_initialization_update",
+				{ step: "app-setup-failed" }
+			);
 		}
 
-		console.log("copied files and started application on EC2");
+		sendMessageToProjectSocketRoom(projectId, "project_initialization_update", {
+			step: "app-setup-succeeded",
+		});
 
 		// Save this project's status in DB
 		const newProjectRunningDoc = new RunningProject({
@@ -169,12 +191,16 @@ module.exports.initializeProject = async (req, res) => {
 			instanceMetaData: instance, // For any arising use case later
 		});
 		await newProjectRunningDoc.save();
-		console.log(instance.PublicDnsName, instance.PublicIpAddress);
-		return res.json({
-			message: "Project initialized successfully",
-			publicIP: instance.PublicIpAddress,
-			publicURL: instance.PublicDnsName,
-		});
+
+		return sendMessageToProjectSocketRoom(
+			projectId,
+			"project_initialization_update",
+			{
+				step: "project-initialization-completed",
+				publicIP: instance.PublicIpAddress,
+				publicURL: instance.PublicDnsName,
+			}
+		);
 	} catch (err) {
 		return res
 			.status(500)
