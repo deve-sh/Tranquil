@@ -3,6 +3,9 @@ const createProjectEC2Instance = async (projectId) => {
 		const ec2 = require("../../aws/ec2");
 		const wait = require("../wait");
 
+		const sendMessageToProjectSocketRoom = require("../../socket/sendMessageToProjectSocketRoom");
+		const { PROJECT_INIT_UPDATE } = require("../../socket/types");
+
 		const instanceCreationParams = {
 			ImageId: process.env.AWS_EC2_RUNNER_IMAGE_ID,
 			InstanceType: process.env.AWS_EC2_RUNNER_INSTANCE_TYPE,
@@ -39,12 +42,10 @@ const createProjectEC2Instance = async (projectId) => {
 			instance = instances.Reservations[0].Instances[0];
 
 			nTries += 1;
-			console.log(
-				"Try at getting Running EC2 Instance for project",
-				projectId,
-				":",
-				nTries
-			);
+			sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
+				step: "waiting-for-instance-to-be-active",
+				try: nTries,
+			});
 			await wait(5000); // Wait for 5 seconds before trying again.
 		}
 
@@ -63,12 +64,10 @@ const createProjectEC2Instance = async (projectId) => {
 				instanceStatusChecksPassed += 1;
 
 			nTries += 1;
-			console.log(
-				"Try at getting healthy EC2 Instance for project",
-				projectId,
-				":",
-				nTries
-			);
+			sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
+				step: "waiting-for-instance-health-checks",
+				try: nTries,
+			});
 			await wait(10000); // Wait for 10 seconds before trying again.
 		}
 

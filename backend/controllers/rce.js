@@ -139,27 +139,30 @@ module.exports.initializeProject = async (req, res) => {
 				publicURL: runningProjectDocInDB.publicURL,
 			});
 
+		const { PROJECT_INIT_UPDATE } = require("../socket/types");
+
 		res.json({ message: "Project initialization started" });
-		sendMessageToProjectSocketRoom(projectId, "project_initialization_update", {
-			step: "instance-creation",
+
+		// Continue Project initialization in the background.
+		sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
+			step: "instance-creation-started",
 		});
 		const createProjectEC2Instance = require("../utils/rce/createProjectEC2Instance");
 		const { data: instance, error: errorCreatingInstance } =
 			await createProjectEC2Instance(projectId);
 		if (errorCreatingInstance)
-			return sendMessageToProjectSocketRoom(
-				projectId,
-				"project_initialization_update",
-				{ step: "instance-creation-failed" }
-			);
+			return sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
+				step: "instance-creation-failed",
+				error: errorCreatingInstance,
+			});
 
-		sendMessageToProjectSocketRoom(projectId, "project_initialization_update", {
+		sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
 			step: "instance-creation-successful",
 		});
 
 		const copyFilesAndStartAppOnInstance = require("../utils/rce/copyFilesAndStartAppOnInstance");
 		const { template } = projectFromDatabase;
-		sendMessageToProjectSocketRoom(projectId, "project_initialization_update", {
+		sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
 			step: "app-setup-started",
 		});
 		const { error: errorStartingApp } = await copyFilesAndStartAppOnInstance(
@@ -171,14 +174,13 @@ module.exports.initializeProject = async (req, res) => {
 		if (errorStartingApp) {
 			const shutDownProjectEC2Instance = require("../utils/rce/shutDownEC2Instance");
 			await shutDownProjectEC2Instance(instance.InstanceId);
-			return sendMessageToProjectSocketRoom(
-				projectId,
-				"project_initialization_update",
-				{ step: "app-setup-failed" }
-			);
+			return sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
+				step: "app-setup-failed",
+				error: errorStartingApp,
+			});
 		}
 
-		sendMessageToProjectSocketRoom(projectId, "project_initialization_update", {
+		sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
 			step: "app-setup-succeeded",
 		});
 
@@ -192,19 +194,14 @@ module.exports.initializeProject = async (req, res) => {
 		});
 		await newProjectRunningDoc.save();
 
-		return sendMessageToProjectSocketRoom(
-			projectId,
-			"project_initialization_update",
-			{
-				step: "project-initialization-completed",
-				publicIP: instance.PublicIpAddress,
-				publicURL: instance.PublicDnsName,
-			}
-		);
+		return sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
+			step: "project-initialization-completed",
+			publicIP: instance.PublicIpAddress,
+			publicURL: instance.PublicDnsName,
+		});
 	} catch (err) {
-		return res
-			.status(500)
-			.json({ message: err.message, error: "Internal Server Error" });
+		if (!res.headersSent)
+			return res.status(500).json({ error: "Internal Server Error" });
 	}
 };
 
@@ -223,6 +220,9 @@ module.exports.shutDownProject = async (req, res) => {
 
 		await shutDownProjectEC2Instance(runningProjectDocInDB.machineId);
 		await runningProjectDocInDB.delete();
+
+		const { PROJECT_SHUT_DOWN } = require("../socket/types");
+		sendMessageToProjectSocketRoom(projectId, PROJECT_SHUT_DOWN, {});
 
 		return res.json({ message: "Project Shut Down Successfully." });
 	} catch (err) {

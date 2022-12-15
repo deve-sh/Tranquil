@@ -4,20 +4,21 @@ const copyFilesAndStartAppOnInstance = async (
 	instance
 ) => {
 	try {
-		let installCommand, startCommand;
-		try {
-			const getTemplateInfo = require("../getTemplateInfo");
-			const templateInfo = getTemplateInfo(template);
+		const sendMessageToProjectSocketRoom = require("../../socket/sendMessageToProjectSocketRoom");
+		const getTemplateInfo = require("../getTemplateInfo");
+		const templateInfo = getTemplateInfo(template);
+		const { installCommand, startCommand } = templateInfo;
 
-			installCommand = templateInfo.installCommand;
-			startCommand = templateInfo.startCommand;
-		} catch {
-			return res.status(400).json({ error: "Invalid or unsupported project." });
-		}
+		if (templateInfo.deprecated)
+			return { error: new Error("Project template no longer supported.") };
 
+		const { PROJECT_INIT_UPDATE } = require("../../socket/types");
 		const { NodeSSH } = require("node-ssh");
 		const fse = require("fs-extra");
 
+		sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
+			step: "copying-files-to-instance",
+		});
 		const ssh = new NodeSSH();
 		await ssh.connect({
 			host: instance.PublicIpAddress,
@@ -48,6 +49,10 @@ const copyFilesAndStartAppOnInstance = async (
 		await Promise.all(fileCreationPromises);
 		await ssh.putFiles(filesToCopy);
 
+		sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
+			step: "copied-files-to-instance",
+		});
+
 		// Delete temporary files
 		const fileDeletionPromises = filesToCopy.map((file) =>
 			fse.unlink(file.local)
@@ -59,6 +64,10 @@ const copyFilesAndStartAppOnInstance = async (
 			onStdout: (out) => console.log(out.toString()),
 			onStderr: (err) => console.error(err.toString()),
 		};
+
+		sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
+			step: "triggering-app-processes",
+		});
 
 		// Install dependencies, run the app just created on the remote runner server.
 		await ssh.execCommand(installCommand, execCommandOptions);
