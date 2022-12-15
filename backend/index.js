@@ -22,7 +22,7 @@ const projectsRouter = require("./routes/projects");
 const rceRouter = require("./routes/rce");
 
 // Socket Server to Client-side browsers and devices
-require("./socket/socketServerToBrowser");
+require("./socket/socketServer");
 
 // Routes
 app.use("/api/files", filesRouter);
