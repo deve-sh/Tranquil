@@ -18,6 +18,8 @@ socketServer.on("connection", (client) => {
 		// This will be used to broadcast project specific logs and updates in real-time
 		client.join(event.projectId);
 		console.log("Joined client:", client.id, "to project", event.projectId);
+
+		// todo: Also handle voluntary disconnect.
 	});
 
 	client.on(BROADCAST_TO_PROJECT, (event) => {
@@ -32,9 +34,13 @@ socketServer.on("connection", (client) => {
 			!typeof event.data === "object"
 		)
 			return;
-		socketServer.to(event.projectId, event.data);
+		socketServer.to(event.projectId, BROADCAST_TO_PROJECT, event.data);
 	});
-	client.on("end", () => client.disconnect(0));
+	client.on("end", () => {
+		// todo: Also handle removal from connected project rooms
+		// todo: and subsequent shutting down of instances with 0 active viewers.
+		client.disconnect(0);
+	});
 });
 
 module.exports = socketServer;
