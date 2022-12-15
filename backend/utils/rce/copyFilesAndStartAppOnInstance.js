@@ -33,12 +33,36 @@ const copyFilesAndStartAppOnInstance = async (
 		if (!projectFiles.length)
 			return { error: new Error("No files present in the project") };
 
-		const filesToCopy = [];
+		const path = require("path");
+
+		// Copy App Runner files.
+		const appRunnerScriptsDirectory = path.resolve(
+			process.cwd(),
+			"../app-runner"
+		);
+		const appRunnerFilesToCopy = [
+			"index.js",
+			"package.json",
+			"package-lock.json",
+			".gitignore",
+			".env",
+		];
+		let filesToCopy = [];
+		for (const file of appRunnerFilesToCopy) {
+			filesToCopy.push({
+				local: appRunnerScriptsDirectory + "/" + file,
+				remote: file,
+			});
+		}
+		await ssh.putFiles(filesToCopy);
+
+		// Project files to copy.
+		filesToCopy = [];
 		const fileCreationPromises = [];
 		for (const file of projectFiles) {
-			// Create files temporarily
+			// Create these project files on the server temporarily
 			const fileTempPath = "/temp/" + projectId + file.path;
-			const fileOnRunnerServerMatchingPath = file.path;
+			const fileOnRunnerServerMatchingPath = "app/" + file.path;
 
 			fileCreationPromises.push(fse.outputFile(fileTempPath, file.contents));
 			filesToCopy.push({
@@ -59,19 +83,16 @@ const copyFilesAndStartAppOnInstance = async (
 		);
 		await Promise.all(fileDeletionPromises);
 
-		// Install node.js on the instance.
-		const execCommandOptions = {
-			onStdout: (out) => console.log(out.toString()),
-			onStderr: (err) => console.error(err.toString()),
-		};
-
 		sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
 			step: "triggering-app-processes",
 		});
 
-		// Install dependencies, run the app just created on the remote runner server.
-		await ssh.execCommand(installCommand, execCommandOptions);
-		ssh.execCommand(startCommand, execCommandOptions);
+		// Run the app just created on the remote runner server.
+		// via the app-runner we copied to the instance.
+		await ssh.execCommand("npm install"); // Install dependencies for the app-runner
+		await ssh.execCommand(
+			`node ./app-runner.js "${projectId}" "${installCommand}" "${startCommand}"`
+		);
 
 		return {};
 	} catch (error) {
