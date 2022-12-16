@@ -7,6 +7,7 @@ const {
 	BROADCAST_TO_PROJECT,
 	PROJECT_APP_RUNNER_SOCKET,
 } = require("../../common/socketTypes");
+const getProjectSocketRoomId = require("./utils/getProjectSocketRoomId");
 
 const socketServer = socketIO(expressServer, {
 	cors: { origin: "*" },
@@ -17,7 +18,6 @@ socketServer.on("connection", (client) => {
 		if (!event || !event.projectId) return;
 		// Make the device socket connection join a room specific to this project id.
 		// This will be used to broadcast project specific logs and updates in real-time
-		const getProjectSocketRoomId = require("./utils/getProjectSocketRoomId");
 		client.join(getProjectSocketRoomId(event.projectId));
 		console.log("Joined client:", client.id, "to project", event.projectId);
 	});
@@ -29,13 +29,14 @@ socketServer.on("connection", (client) => {
 			!event ||
 			!event.projectId ||
 			!event.broadCastSecret ||
-			!event.broadCastSecret === process.env.PROJECT_SOCKET_BROADCAST_SECRET ||
+			event.broadCastSecret !== process.env.PROJECT_SOCKET_BROADCAST_SECRET ||
 			!event.data ||
-			!typeof event.data === "object"
+			typeof event.data !== "object"
 		)
 			return;
-		socketServer.to(
-			getProjectSocketRoomId(event.projectId),
+		const sendMessageToProjectSocketRoom = require("./sendMessageToProjectSocketRoom");
+		sendMessageToProjectSocketRoom(
+			event.projectId,
 			BROADCAST_TO_PROJECT,
 			event.data
 		);
