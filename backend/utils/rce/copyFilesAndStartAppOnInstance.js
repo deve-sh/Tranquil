@@ -33,36 +33,16 @@ const copyFilesAndStartAppOnInstance = async (
 		if (!projectFiles.length)
 			return { error: new Error("No files present in the project") };
 
-		const path = require("path");
-
-		// Copy App Runner files.
-		const appRunnerScriptsDirectory = path.resolve(
-			process.cwd(),
-			"../app-runner"
-		);
-		const appRunnerFilesToCopy = [
-			"index.js",
-			"package.json",
-			"package-lock.json",
-			".gitignore",
-			".env",
-		];
-		let filesToCopy = [];
-		for (const file of appRunnerFilesToCopy) {
-			filesToCopy.push({
-				local: appRunnerScriptsDirectory + "/" + file,
-				remote: file,
-			});
-		}
-		await ssh.putFiles(filesToCopy);
+		// Run Git Clone to get app-runner files.
+		await ssh.execCommand(`git clone ${process.env.REPO_GITHUB_CLONE_PATH} ./`);
 
 		// Project files to copy.
-		filesToCopy = [];
+		const filesToCopy = [];
 		const fileCreationPromises = [];
 		for (const file of projectFiles) {
 			// Create these project files on the server temporarily
 			const fileTempPath = "/temp/" + projectId + file.path;
-			const fileOnRunnerServerMatchingPath = "app/" + file.path;
+			const fileOnRunnerServerMatchingPath = "project-app/" + file.path;
 
 			fileCreationPromises.push(fse.outputFile(fileTempPath, file.contents));
 			filesToCopy.push({
