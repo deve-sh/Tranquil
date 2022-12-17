@@ -19,7 +19,6 @@ socketServer.on("connection", (client) => {
 		// Make the device socket connection join a room specific to this project id.
 		// This will be used to broadcast project specific logs and updates in real-time
 		client.join(getProjectSocketRoomId(event.projectId));
-		console.log("Joined client:", client.id, "to project", event.projectId);
 	});
 
 	client.on(BROADCAST_TO_PROJECT, (event) => {
@@ -47,44 +46,26 @@ socketServer.on("connection", (client) => {
 		client.join(event.projectId + "-app-runner-updates");
 	});
 
-	client.on("disconnecting", async () => {
-		const roomsForClient = client.rooms;
-		if (!roomsForClient.size) return;
+	client.on("end", () => client.disconnect(0));
 
-		// Check how many users are listening to each project room.
-		// If after disconnecting from the room, the number of connections to it are 0
-		// then shut down the instance the project is running on.
+	client.adapter.on("leave-room", async (roomId) => {
 		const isProjectSocketRoomId = require("./utils/isProjectSocketRoomId");
-		const projectRoomIds = Array.from(roomsForClient).filter(
-			isProjectSocketRoomId
-		);
+		if (!isProjectSocketRoomId(roomId)) return;
 
-		if (!projectRoomIds.length) return;
+		// Get how many sockets are left in the room.
+		const socketsInRoom = await socketServer.in(roomId).fetchSockets();
 
-		const roomsSocketListPromises = [];
-		for (const room of projectRoomIds)
-			roomsSocketListPromises.push(socketServer.in(room).fetchSockets());
+		if (!socketsInRoom.length) {
+			// No connections left to the room. Shut the instance down and delete mongodb document for it.
+			// Use the inbuilt controller function to make the request.
+			const mockSelfRequest = require("../utils/mockSelfRequest");
+			const getProjectIdFromSocketRoom = require("./utils/getProjectIdFromSocketRoom");
+			const { shutDownProject } = require("../controllers/rce");
 
-		const roomsSocketList = await Promise.all(roomsSocketListPromises);
-		for (let i = 0; i < projectRoomIds.length; i++) {
-			const projectRoomId = projectRoomIds[i];
-			const nConnectionsToRoom = roomsSocketList[i];
-
-			if (!nConnectionsToRoom.length) {
-				// No connections left to the room. Shut the instance down and delete mongodb document for it.
-				// Use the inbuilt controller function to make the request.
-				const { shutDownProject } = require("../controllers/rce");
-				const mockSelfRequest = require("../utils/mockSelfRequest");
-				const getProjectIdFromSocketRoom = require("./utils/getProjectIdFromSocketRoom");
-
-				mockSelfRequest(shutDownProject, {
-					params: { projectId: getProjectIdFromSocketRoom(projectRoomId) },
-				});
-			}
+			const requestParams = { projectId: getProjectIdFromSocketRoom(roomId) };
+			mockSelfRequest(shutDownProject, { params: requestParams });
 		}
 	});
-
-	client.on("end", () => client.disconnect(0));
 });
 
 module.exports = socketServer;
