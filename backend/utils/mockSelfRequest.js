@@ -4,7 +4,7 @@ const mockSelfRequest = async (
 ) => {
 	const req = { params: params || {}, body: body || null, query: query || {} };
 	const res = {
-		data: { status: null, response: null },
+		data: { status: 200, response: null },
 		status(statusCode) {
 			this.data.status = statusCode;
 			return this;
