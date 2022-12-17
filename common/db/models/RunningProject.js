@@ -4,16 +4,21 @@ const RunningProject = new Schema(
 	{
 		publicIP: {
 			type: String,
+			default: "",
+		},
+		status: {
+			type: String,
+			enum: ["live", "starting"],
 			required: true,
 		},
 		publicURL: {
 			type: String,
-			required: true,
+			default: "",
 		},
 		secureURL: String,
 		machineId: {
 			type: String,
-			required: true,
+			default: "",
 		},
 		projectId: {
 			type: Schema.Types.ObjectId,

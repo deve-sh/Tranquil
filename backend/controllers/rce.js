@@ -132,15 +132,30 @@ module.exports.initializeProject = async (req, res) => {
 		const RunningProject = require("../../common/db/models/RunningProject");
 		const runningProjectDocInDB = await RunningProject.findOne({ projectId });
 
-		if (runningProjectDocInDB)
+		if (
+			runningProjectDocInDB &&
+			runningProjectDocInDB.status === "live" &&
+			runningProjectDocInDB.publicURL &&
+			runningProjectDocInDB.machineId
+		)
 			return res.json({
 				message: "Project is already running",
 				publicIP: runningProjectDocInDB.publicIP,
 				publicURL: runningProjectDocInDB.publicURL,
 			});
 
+		if (runningProjectDocInDB && runningProjectDocInDB.status === "starting")
+			return res.json({
+				message: "Project is currently starting up.",
+			});
+
 		const { PROJECT_INIT_UPDATE } = require("../../common/socketTypes");
 
+		const newProjectRunningDoc = new RunningProject({
+			projectId,
+			status: "starting",
+		});
+		await newProjectRunningDoc.save();
 		res.json({ message: "Project initialization started" });
 
 		// Continue Project initialization in the background.
@@ -185,13 +200,11 @@ module.exports.initializeProject = async (req, res) => {
 		});
 
 		// Save this project's status in DB
-		const newProjectRunningDoc = new RunningProject({
-			publicIP: instance.PublicIpAddress,
-			publicURL: instance.PublicDnsName,
-			projectId,
-			machineId: instance.InstanceId,
-			instanceMetaData: instance, // For any arising use case later
-		});
+		newProjectRunningDoc.publicIP = instance.PublicIpAddress;
+		newProjectRunningDoc.publicURL = instance.PublicDnsName;
+		newProjectRunningDoc.machineId = instance.InstanceId;
+		newProjectRunningDoc.instanceMetaData = instance;
+		newProjectRunningDoc.status = "live";
 		await newProjectRunningDoc.save();
 
 		return sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
@@ -213,12 +226,13 @@ module.exports.shutDownProject = async (req, res) => {
 		const RunningProject = require("../../common/db/models/RunningProject");
 		const runningProjectDocInDB = await RunningProject.findOne({ projectId });
 
-		if (!runningProjectDocInDB || !runningProjectDocInDB.machineId)
+		if (!runningProjectDocInDB)
 			return res.json({ message: "Project is already shut down" });
 
-		const shutDownProjectEC2Instance = require("../utils/rce/shutDownEC2Instance");
-
-		await shutDownProjectEC2Instance(runningProjectDocInDB.machineId);
+		if (runningProjectDocInDB.machineId) {
+			const shutDownProjectEC2Instance = require("../utils/rce/shutDownEC2Instance");
+			await shutDownProjectEC2Instance(runningProjectDocInDB.machineId);
+		}
 		await runningProjectDocInDB.delete();
 
 		const { PROJECT_SHUT_DOWN } = require("../../common/socketTypes");
