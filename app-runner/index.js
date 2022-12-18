@@ -3,22 +3,28 @@
 
 require("dotenv").config();
 
-const { spawn } = require("child_process");
 const { io } = require("socket.io-client");
 const fse = require("fs-extra");
+const { resolve } = require("path");
 
 const {
 	BROADCAST_TO_PROJECT,
 	PROJECT_INSTANCE_STATES,
 	PROJECT_APP_RUNNER_SOCKET,
 	FILE_UPDATED,
+	TRIGGER_SERVER_RESTART,
 } = require("../common/socketTypes");
+
+const spawnAppProcess = require("./spawnAppProcess");
+const killProcess = require("./killProcess");
 
 const projectId = process.argv[2] || "";
 const installCommand = process.argv[3] || "npm install";
 const startCommand = process.argv[4] || "npm run start";
 
 const broadCastSecret = process.env.PROJECT_SOCKET_BROADCAST_SECRET;
+
+let currentlyRunningAppProcess;
 
 if (projectId && installCommand && startCommand && broadCastSecret) {
 	const socket = io(process.env.MAIN_BACKEND_URL);
@@ -30,73 +36,18 @@ if (projectId && installCommand && startCommand && broadCastSecret) {
 		socket.emit(PROJECT_APP_RUNNER_SOCKET, { projectId });
 
 		// Spawn app install and runner processes.
-		const appRunningProcess = spawn(
-			`cd ./project-app && ${installCommand} && ${startCommand}`,
-			{ shell: true }
-		);
-		appRunningProcess.stdout.on("data", (data) => {
-			const logString = data.toString().trim();
-			if (logString.length) {
-				// Send to server via socket for it to broadcast to project clients.
-				socket.emit(BROADCAST_TO_PROJECT, {
-					projectId,
-					broadCastSecret: process.env.PROJECT_SOCKET_BROADCAST_SECRET,
-					data: { type: PROJECT_INSTANCE_STATES.STDOUT, log: logString },
-				});
-			}
-		});
-
-		appRunningProcess.stderr.on("data", (data) => {
-			const logString = data.toString();
-			if (logString.trim().length) {
-				// Send to server via socket for it to broadcast to project clients.
-				socket.emit(BROADCAST_TO_PROJECT, {
-					projectId,
-					broadCastSecret: process.env.PROJECT_SOCKET_BROADCAST_SECRET,
-					data: { type: PROJECT_INSTANCE_STATES.STDERR, log: logString },
-				});
-			}
-		});
-
-		appRunningProcess.on("close", (code, signal) => {
-			if (code || signal) {
-				// Errored Exit
-				socket.emit(BROADCAST_TO_PROJECT, {
-					projectId,
-					broadCastSecret: process.env.PROJECT_SOCKET_BROADCAST_SECRET,
-					data: { type: PROJECT_INSTANCE_STATES.CRASHED, code },
-				});
-			} else {
-				// Clean Exit
-				socket.emit(BROADCAST_TO_PROJECT, {
-					projectId,
-					broadCastSecret: process.env.PROJECT_SOCKET_BROADCAST_SECRET,
-					data: { type: PROJECT_INSTANCE_STATES.STOPPED },
-				});
-			}
+		const appRunningCommand = `cd ./project-app && ${installCommand} && ${startCommand}`;
+		currentlyRunningAppProcess = spawnAppProcess({
+			command: appRunningCommand,
+			socket,
+			projectId,
 		});
 
 		socket.on(FILE_UPDATED, (event) => {
 			const { operation, newContent, path } = event;
-			socket.emit(BROADCAST_TO_PROJECT, {
-				projectId,
-				broadCastSecret: process.env.PROJECT_SOCKET_BROADCAST_SECRET,
-				data: {
-					type: PROJECT_INSTANCE_STATES.STDOUT,
-					log: "File update op received: " + JSON.stringify(event),
-				},
-			});
 			try {
-				if (operation === "delete") fse.unlink(`./project-app/${path}`);
-				else fse.writeFile(`./project-app/${path}`, newContent);
-				socket.emit(BROADCAST_TO_PROJECT, {
-					projectId,
-					broadCastSecret: process.env.PROJECT_SOCKET_BROADCAST_SECRET,
-					data: {
-						type: PROJECT_INSTANCE_STATES.STDOUT,
-						log: "File update op done: " + JSON.stringify(event),
-					},
-				});
+				if (operation === "delete") fse.unlink(resolve("./project-app/", path));
+				else fse.writeFile(resolve("./project-app/", path), newContent);
 			} catch (err) {
 				socket.emit(BROADCAST_TO_PROJECT, {
 					projectId,
@@ -107,6 +58,23 @@ if (projectId && installCommand && startCommand && broadCastSecret) {
 					},
 				});
 			}
+		});
+
+		socket.on(TRIGGER_SERVER_RESTART, () => {
+			socket.emit(BROADCAST_TO_PROJECT, {
+				projectId,
+				broadCastSecret: process.env.PROJECT_SOCKET_BROADCAST_SECRET,
+				data: {
+					type: PROJECT_INSTANCE_STATES.STDOUT,
+					log: "Re-installing dependencies and restarting server",
+				},
+			});
+			killProcess(currentlyRunningAppProcess.pid.toString());
+			currentlyRunningAppProcess = spawnAppProcess({
+				command: appRunningCommand,
+				socket,
+				projectId,
+			});
 		});
 	});
 }
