@@ -10,6 +10,7 @@ const {
 	BROADCAST_TO_PROJECT,
 	PROJECT_INSTANCE_STATES,
 	PROJECT_APP_RUNNER_SOCKET,
+	FILE_UPDATED,
 } = require("../common/socketTypes");
 
 const projectId = process.argv[2] || "";
@@ -74,7 +75,21 @@ if (projectId && installCommand && startCommand && broadCastSecret) {
 			}
 		});
 
-		// todo: Add project file updation related socket event as well.
-		socket.on("filechange", (event) => {});
+		socket.on(FILE_UPDATED, (event) => {
+			const { operation, newContent, path } = event;
+			try {
+				if (operation === "delete") fse.unlink(`./project-app/${path}`);
+				else fse.writeFile(`./project-app/${path}`, newContent);
+			} catch (err) {
+				socket.emit(BROADCAST_TO_PROJECT, {
+					projectId,
+					broadCastSecret: process.env.PROJECT_SOCKET_BROADCAST_SECRET,
+					data: {
+						type: PROJECT_INSTANCE_STATES.STDERR,
+						log: "File update failed: " + err.message,
+					},
+				});
+			}
+		});
 	});
 }

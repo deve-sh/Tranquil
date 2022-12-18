@@ -8,10 +8,11 @@ const updateFileInRunningProject = async (
 		fse.unlink(
 			path.resolve(process.cwd(), `../running-projects/${projectId}/${path}`)
 		);
-	fse.writeFile(
-		path.resolve(process.cwd(), `../running-projects/${projectId}/${path}`),
-		newContent
-	);
+	else
+		fse.writeFile(
+			path.resolve(process.cwd(), `../running-projects/${projectId}/${path}`),
+			newContent
+		);
 };
 
 module.exports = updateFileInRunningProject;
