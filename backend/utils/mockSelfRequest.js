@@ -5,6 +5,10 @@ const mockSelfRequest = async (
 	const req = { params: params || {}, body: body || null, query: query || {} };
 	const res = {
 		data: { status: 200, response: null },
+		sendStatus(statusCode) {
+			this.data.status = statusCode;
+			return this;
+		},
 		status(statusCode) {
 			this.data.status = statusCode;
 			return this;
