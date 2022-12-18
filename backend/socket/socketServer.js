@@ -7,7 +7,9 @@ const {
 	BROADCAST_TO_PROJECT,
 	PROJECT_APP_RUNNER_SOCKET,
 } = require("../../common/socketTypes");
+
 const getProjectSocketRoomId = require("./utils/getProjectSocketRoomId");
+const getAppRunnerSocketRoomId = require("./utils/getAppRunnerSocketRoomId");
 
 const socketServer = socketIO(expressServer, {
 	cors: { origin: "*" },
@@ -43,7 +45,7 @@ socketServer.on("connection", (client) => {
 
 	client.on(PROJECT_APP_RUNNER_SOCKET, (event) => {
 		if (!event || !event.projectId) return;
-		client.join(event.projectId + "-app-runner-updates");
+		client.join(getAppRunnerSocketRoomId(event.projectId));
 	});
 
 	client.on("end", () => client.disconnect(0));

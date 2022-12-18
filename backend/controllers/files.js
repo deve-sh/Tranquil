@@ -1,5 +1,4 @@
 const ProjectFile = require("../../common/db/models/ProjectFile");
-const updateFileInRunningProject = require("../utils/rce-local/updateFileInRunningProject");
 
 module.exports.getProjectFileList = async (req, res) => {
 	try {
@@ -66,11 +65,14 @@ module.exports.updateFile = async (req, res) => {
 				break;
 		}
 
-		await updateFileInRunningProject(projectId, {
+		const fileUpdatePayload = {
 			operation,
 			newContent,
 			path,
-		});
+		};
+
+		const sendFileUpdateMessage = require("../socket/sendFileUpdateMessage");
+		sendFileUpdateMessage(projectId, fileUpdatePayload);
 	} catch (err) {
 		return res
 			.status(500)
