@@ -27,55 +27,77 @@ module.exports.getFileContents = async (req, res) => {
 	}
 };
 
+module.exports.createFile = async (req, res) => {
+	try {
+		const { path, contents } = req.body;
+		const { projectId } = req.params;
+
+		// Check if a file at the path already exists.
+		const fileAlreadyExists = await ProjectFile.findOne({ path, projectId });
+		if (fileAlreadyExists)
+			return res
+				.status(400)
+				.json({ error: "File already exists at that path." });
+
+		const fileToCreate = new ProjectFile({
+			path,
+			contents,
+			projectId,
+		});
+		await fileToCreate.save();
+		res
+			.status(201)
+			.json({ message: "Created File Successfully", file: fileToCreate._id });
+
+		const fileCreatePayloadForSocket = {
+			operation: "create",
+			newContent: contents,
+			path,
+		};
+		const sendFileUpdateMessage = require("../socket/sendFileUpdateMessage");
+		sendFileUpdateMessage(projectId, fileCreatePayloadForSocket);
+	} catch (err) {
+		console.log(err);
+		if (!res.headersSent)
+			return res
+				.status(500)
+				.json({ message: err.message, error: "Internal Server Error" });
+	}
+};
+
 module.exports.updateFile = async (req, res) => {
 	try {
-		// operation -> update, delete, create
+		// operation -> update, delete
 		const { path, newContent, operation = "update" } = req.body;
 		const { fileId, projectId } = req.params;
 
-		switch (operation) {
-			case "create":
-				const fileToCreate = new ProjectFile({
-					path,
-					contents: newContent,
-					projectId,
-				});
-				await fileToCreate.save();
-				res
-					.status(201)
-					.json({ message: "Created File Successfully", file: fileToCreate });
-				break;
-			case "delete":
-				const fileToDelete = await ProjectFile.findById(fileId);
-				if (fileToDelete) await fileToDelete.delete();
-				res.sendStatus(204);
-				break;
-			case "update":
-				const fileToUpdate = await ProjectFile.findById(fileId);
-				if (fileToUpdate) {
-					fileToUpdate.contents = newContent || "";
-					fileToUpdate.path = path;
-					await fileToUpdate.save();
-					res.sendStatus(200);
-				}
-				res.sendStatus(404);
-				break;
-			default:
+		if (operation === "delete") {
+			const fileToDelete = await ProjectFile.findById(fileId);
+			if (fileToDelete) await fileToDelete.delete();
+			res.sendStatus(204);
+		}
+		if (operation === "update") {
+			const fileToUpdate = await ProjectFile.findById(fileId);
+			if (fileToUpdate) {
+				fileToUpdate.contents = newContent || "";
+				fileToUpdate.path = path;
+				await fileToUpdate.save();
 				res.sendStatus(200);
-				break;
+			} else res.sendStatus(404);
 		}
 
-		const fileUpdatePayload = {
+		const fileUpdatePayloadForSocket = {
 			operation,
 			newContent,
 			path,
 		};
-
 		const sendFileUpdateMessage = require("../socket/sendFileUpdateMessage");
-		sendFileUpdateMessage(projectId, fileUpdatePayload);
+		sendFileUpdateMessage(projectId, fileUpdatePayloadForSocket);
 	} catch (err) {
-		return res
-			.status(500)
-			.json({ message: err.message, error: "Internal Server Error" });
+		console.log(err);
+		if (!res.headersSent)
+			return res
+				.status(500)
+				.json({ message: err.message, error: "Internal Server Error" });
 	}
 };

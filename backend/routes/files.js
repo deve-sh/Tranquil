@@ -5,6 +5,7 @@ const filesRouter = Router();
 
 filesRouter.get("/:projectId", filesControllers.getProjectFileList);
 filesRouter.get("/:projectId/:fileId", filesControllers.getFileContents);
+filesRouter.post("/:projectId", filesControllers.createFile);
 filesRouter.post("/:projectId/:fileId", filesControllers.updateFile);
 
 module.exports = filesRouter;
