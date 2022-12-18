@@ -5,6 +5,7 @@ require("dotenv").config();
 
 const { spawn } = require("child_process");
 const { io } = require("socket.io-client");
+const fse = require("fs-extra");
 
 const {
 	BROADCAST_TO_PROJECT,
