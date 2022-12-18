@@ -20,6 +20,7 @@ app.use((req, _, next) => {
 const filesRouter = require("./routes/files");
 const projectsRouter = require("./routes/projects");
 const rceRouter = require("./routes/rce");
+const envVarsRouter = require("./routes/envVariables");
 
 // Socket Server to Client-side browsers and devices
 require("./socket/socketServer");
@@ -28,6 +29,7 @@ require("./socket/socketServer");
 app.use("/api/files", filesRouter);
 app.use("/api/projects", projectsRouter);
 app.use("/api/rce", rceRouter);
+app.use("/api/variables", envVarsRouter);
 
 const PORT = process.env.PORT || 8080;
 setupMongoDBConnection().then(() =>
