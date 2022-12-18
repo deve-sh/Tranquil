@@ -78,9 +78,25 @@ if (projectId && installCommand && startCommand && broadCastSecret) {
 
 		socket.on(FILE_UPDATED, (event) => {
 			const { operation, newContent, path } = event;
+			socket.emit(BROADCAST_TO_PROJECT, {
+				projectId,
+				broadCastSecret: process.env.PROJECT_SOCKET_BROADCAST_SECRET,
+				data: {
+					type: PROJECT_INSTANCE_STATES.STDOUT,
+					log: "File update op received: " + JSON.stringify(event),
+				},
+			});
 			try {
 				if (operation === "delete") fse.unlink(`./project-app/${path}`);
 				else fse.writeFile(`./project-app/${path}`, newContent);
+				socket.emit(BROADCAST_TO_PROJECT, {
+					projectId,
+					broadCastSecret: process.env.PROJECT_SOCKET_BROADCAST_SECRET,
+					data: {
+						type: PROJECT_INSTANCE_STATES.STDOUT,
+						log: "File update op done: " + JSON.stringify(event),
+					},
+				});
 			} catch (err) {
 				socket.emit(BROADCAST_TO_PROJECT, {
 					projectId,
