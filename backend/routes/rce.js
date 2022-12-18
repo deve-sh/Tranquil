@@ -13,6 +13,10 @@ rceRouter.post(
 );
 
 rceRouter.post("/initialize/:projectId", rceControllers.initializeProject);
+rceRouter.post(
+	"/restart-app-server/:projectId",
+	rceControllers.triggerProjectAppRestart
+);
 rceRouter.post("/shutdown/:projectId", rceControllers.shutDownProject);
 
 module.exports = rceRouter;

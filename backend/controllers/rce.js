@@ -2,6 +2,7 @@ const fse = require("fs-extra");
 
 const Project = require("../../common/db/models/Project");
 const sendMessageToProjectSocketRoom = require("../socket/sendMessageToProjectSocketRoom");
+const sendMessageToProjectAppRunner = require("../socket/sendMessageToProjectAppRunner");
 
 module.exports.initializeProjectLocally = async (req, res) => {
 	try {
@@ -239,6 +240,33 @@ module.exports.shutDownProject = async (req, res) => {
 		sendMessageToProjectSocketRoom(projectId, PROJECT_SHUT_DOWN, {});
 
 		return res.json({ message: "Project Shut Down Successfully." });
+	} catch (err) {
+		return res
+			.status(500)
+			.json({ message: err.message, error: "Internal Server Error" });
+	}
+};
+
+module.exports.triggerProjectAppRestart = async (req, res) => {
+	try {
+		const { projectId } = req.params;
+
+		// Check if project is actually running on an EC2 server.
+		const RunningProject = require("../../common/db/models/RunningProject");
+		const runningProjectDocInDB = await RunningProject.findOne({ projectId });
+
+		if (!runningProjectDocInDB)
+			return res.status(400).json({ message: "Project is not running" });
+
+		if (!runningProjectDocInDB.machineId)
+			return res
+				.status()
+				.json({ message: "Project has not yet been initialized." });
+
+		const { TRIGGER_SERVER_RESTART } = require("../../common/socketTypes");
+		sendMessageToProjectAppRunner(projectId, TRIGGER_SERVER_RESTART, {});
+
+		return res.json({ message: "Project App Restart Triggered Successfully." });
 	} catch (err) {
 		return res
 			.status(500)
