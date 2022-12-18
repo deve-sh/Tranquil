@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import CodeEditor from "./CodeEditor";
 import ProjectIframe from "./ProjectIframe";
@@ -21,6 +21,10 @@ const ProjectEditor = () => {
 		"Installing dependencies",
 		"> npm run start",
 	]);
+	const toggleProjectTerminal = useCallback(
+		() => setShowAppTerminal((show) => !show),
+		[]
+	);
 
 	return (
 		<div className="project-editor flex w-full h-screen">
@@ -28,12 +32,15 @@ const ProjectEditor = () => {
 				<CodeEditor code={code} onChange={(_, __, value) => setCode(value)} />
 			</div>
 			<div className="project-editor-section sm:w-2/5">
-				<ProjectIframe src={projectAppInstanceURL} />
+				<ProjectIframe
+					src={projectAppInstanceURL}
+					toggleTerminal={toggleProjectTerminal}
+				/>
 			</div>
 			<ProjectTerminalOutput
 				logs={appTerminalLogs}
 				isOpen={showAppTerminal}
-				toggle={() => setShowAppTerminal((show) => !show)}
+				toggle={toggleProjectTerminal}
 			/>
 		</div>
 	);
