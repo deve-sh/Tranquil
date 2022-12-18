@@ -12,7 +12,7 @@ const Project = new Schema(
 		},
 		template: {
 			type: String,
-			enum: ["CRA"],
+			enum: ["CRA", "Next"],
 			required: true,
 			default: "CRA",
 		},
