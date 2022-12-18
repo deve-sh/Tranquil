@@ -1,10 +1,8 @@
 import { useState } from "react";
-import EditorBase from "./Project/Editor/Base";
+import ProjectEditor from "./Project/Editor";
 
 function App() {
-	const [code, setCode] = useState(`function add(x, y){ return x + y; }`);
-
-	return <EditorBase code={code} onChange={(_, __, value) => setCode(value)} />;
+	return <ProjectEditor />;
 }
 
 export default App;
