@@ -176,12 +176,12 @@ module.exports.initializeProject = async (req, res) => {
 			step: "instance-creation-successful",
 		});
 
-		const copyFilesAndStartAppOnInstance = require("../utils/rce/copyFilesAndStartAppOnInstance");
+		const startAppOnInstance = require("../utils/rce/startAppOnInstance");
 		const { template } = projectFromDatabase;
 		sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
 			step: "app-setup-started",
 		});
-		const { error: errorStartingApp } = await copyFilesAndStartAppOnInstance(
+		const { error: errorStartingApp } = await startAppOnInstance(
 			projectId,
 			template,
 			instance

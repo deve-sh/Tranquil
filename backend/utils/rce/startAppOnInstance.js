@@ -1,8 +1,6 @@
-const copyFilesAndStartAppOnInstance = async (
-	projectId,
-	template,
-	instance
-) => {
+const generateEnvVarSetterCommandsForProject = require("./generateEnvVarSetterCommandsForProject");
+
+const startAppOnInstance = async (projectId, template, instance) => {
 	try {
 		const sendMessageToProjectSocketRoom = require("../../socket/sendMessageToProjectSocketRoom");
 		const getTemplateInfo = require("../getTemplateInfo");
@@ -76,6 +74,21 @@ const copyFilesAndStartAppOnInstance = async (
 			step: "triggering-app-processes",
 		});
 
+		// Expose Environment variables for the project in the instance set by the user
+		const envVarSetterCommands = await generateEnvVarSetterCommandsForProject(
+			projectId
+		);
+		if (envVarSetterCommands.length) {
+			sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
+				step: "setting-env-vars-to-instance",
+			});
+			for (const command of envVarSetterCommands)
+				await ssh.execCommand(command);
+			sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
+				step: "completed-setting-env-vars-to-instance",
+			});
+		}
+
 		// Run the app just created on the remote runner server.
 		// via the app-runner we copied to the instance.
 		ssh.execCommand(
@@ -88,4 +101,4 @@ const copyFilesAndStartAppOnInstance = async (
 	}
 };
 
-module.exports = copyFilesAndStartAppOnInstance;
+module.exports = startAppOnInstance;
