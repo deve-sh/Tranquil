@@ -1,6 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { type Editor as CodemirrorEditorType } from "codemirror";
 import { Controlled as CodeMirror } from "react-codemirror2";
+
+import CodeEditorBottomPane from "./CodeEditorBottomPane";
 
 import "codemirror/lib/codemirror.css";
 import "codemirror/theme/material.css";
@@ -16,24 +18,38 @@ interface CodeEditorProps {
 const CodeEditor = (props: CodeEditorProps) => {
 	const editorRef = useRef<CodemirrorEditorType | null>(null);
 
+	const [cursorPosition, setCursorPosition] = useState({ ch: 0, line: 0 });
+
 	useEffect(() => {
 		if (editorRef.current) editorRef.current.setSize("100%", "100%");
 	}, []);
 
+	const onCursorActivity = (editor: CodemirrorEditorType) =>
+		setCursorPosition(editor.getCursor());
+
 	return (
-		<CodeMirror
-			value={props.code || ""}
-			onBeforeChange={props.onChange}
-			onCursorActivity={console.log}
-			editorDidMount={(editor) => (editorRef.current = editor)}
-			className="code-editor h-full"
-			options={{
-				mode: props.mode || "javascript",
-				theme: "material",
-				lineNumbers: true,
-				lineWrapping: true,
-			}}
-		/>
+		<>
+			<CodeMirror
+				value={props.code || ""}
+				onBeforeChange={props.onChange}
+				onCursorActivity={onCursorActivity}
+				editorDidMount={(editor) => (editorRef.current = editor)}
+				className="code-editor h-full"
+				options={{
+					mode: props.mode || "javascript",
+					theme: "material",
+					lineNumbers: true,
+					indentUnit: 4,
+					tabSize: 4,
+					lineWrapping: true,
+				}}
+			/>
+			<CodeEditorBottomPane
+				language={props.mode || "javascript"}
+				lineNumber={cursorPosition.line + 1}
+				colNumber={cursorPosition.ch + 1}
+			/>
+		</>
 	);
 };
 
