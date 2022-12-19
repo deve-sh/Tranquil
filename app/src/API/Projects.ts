@@ -7,7 +7,7 @@ import {
 	updateProjectEndpoint,
 } from "./endpoints/project";
 
-type CreateProjectInputs = { projectName: string };
+type CreateProjectInputs = { projectName: string; template: string };
 export const createProject = async (projectInputs: CreateProjectInputs) => {
 	try {
 		const response = await request(createProjectEndpoint, {
@@ -15,7 +15,7 @@ export const createProject = async (projectInputs: CreateProjectInputs) => {
 			method: "post",
 		});
 		return { error: null, data: response };
-	} catch (error) {
+	} catch (error: unknown | any | Error) {
 		return { error, data: null };
 	}
 };

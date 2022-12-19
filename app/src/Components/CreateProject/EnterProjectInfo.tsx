@@ -7,6 +7,7 @@ import Input from "../Reusables/Input";
 
 interface Props {
 	onSubmit: (projectInfo: ProjectInfo) => any;
+	disableInputs?: boolean;
 }
 
 const EnterProjectInfo = (props: Props) => {
@@ -33,8 +34,11 @@ const EnterProjectInfo = (props: Props) => {
 				placeholder="Project Name"
 				className="w-full"
 				onChange={onChange}
+				disabled={props.disableInputs}
 			/>
-			<Button className="mt-4">Create Project</Button>
+			<Button className="mt-4" disabled={props.disableInputs}>
+				Create Project
+			</Button>
 		</form>
 	);
 };
