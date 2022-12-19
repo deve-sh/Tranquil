@@ -6,7 +6,9 @@ module.exports = {
 	theme: {
 		extend: {},
 		textColor: {
-			white: "#FFFFFF",
+			white: colors.white,
+			gray: colors.gray,
+			slate: colors.slate,
 		},
 		colors: {
 			stone: colors.stone,
