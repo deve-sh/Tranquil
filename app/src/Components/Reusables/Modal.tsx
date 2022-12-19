@@ -27,13 +27,13 @@ const Modal = ({ open, title, close, className, children }: Props) => {
 
 	return (
 		<div
-			className={`w-full p-4 -translate-y-full bg-black/70 fixed top-0 left-0 right-0 bottom-0 overflow-x-hidden flex items-center justify-center ${
-				open ? "translate-y-0" : ""
+			className={`w-full p-4 bg-black/70 ease-in-out fixed top-0 left-0 right-0 bottom-0 overflow-x-hidden flex items-center justify-center ${
+				open ? "translate-y-0" : "-translate-y-full"
 			} ${className || ""} modal-container`}
 		>
 			<div
-				className={`modal min-w-[30%] -translate-y-full ${
-					open ? "translate-y-0" : ""
+				className={`modal min-w-[30%] ${
+					open ? "translate-y-0" : "-translate-y-full"
 				} shadow-lg bg-white rounded-md min-h-fit transition-all ease-in-out duration-300`}
 				ref={modalMainContentRef}
 			>
