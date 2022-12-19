@@ -9,6 +9,7 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
+		"axios": "^1.2.1",
 		"codemirror": "^5.49.2",
 		"react": "^18.2.0",
 		"react-codemirror2": "6.0.0",
