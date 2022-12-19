@@ -18,6 +18,8 @@ module.exports = {
 			slate: colors.slate,
 			black: colors.black,
 			white: colors.white,
+			red: colors.red,
+			blue: colors.blue,
 			editor: "#263238",
 			editorpane: "#246b67",
 			transparent: "transparent",
