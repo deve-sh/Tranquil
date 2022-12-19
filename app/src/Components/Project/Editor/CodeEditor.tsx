@@ -12,7 +12,7 @@ interface CodeEditorProps {
 	code: string;
 	mode?: string;
 	onChange: (editor: any, data: any, value: string) => any;
-	onCursorPositionChange?: (position: { line: number; column: number }) => any;
+	onSave?: (editor: CodemirrorEditorType) => any;
 }
 
 const CodeEditor = (props: CodeEditorProps) => {
@@ -42,6 +42,10 @@ const CodeEditor = (props: CodeEditorProps) => {
 					indentUnit: 4,
 					tabSize: 4,
 					lineWrapping: true,
+					extraKeys: {
+						"Ctrl-S": props.onSave || (() => null),
+						"Cmd-S": props.onSave || (() => null),
+					},
 				}}
 			/>
 			<CodeEditorBottomPane

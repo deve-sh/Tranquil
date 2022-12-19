@@ -1,5 +1,5 @@
 import { useState } from "react";
-import ProjectEditor from "./Project/Editor";
+import ProjectEditor from "./Components/Project/Editor";
 
 function App() {
 	return <ProjectEditor />;
