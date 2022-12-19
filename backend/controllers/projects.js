@@ -18,7 +18,7 @@ module.exports.getProjectInfo = async (req, res) => {
 };
 
 module.exports.createProject = async (req, res) => {
-	const { name: projectName, template } = req.body;
+	const { projectName, template } = req.body;
 	if (!projectName || !template)
 		return res.status(400).json({ error: "Invalid Payload for project." });
 
