@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import ProjectTemplates from "./ProjectTemplates";
 import EnterProjectInfo from "./EnterProjectInfo";
@@ -9,6 +10,7 @@ import useToast from "../../hooks/useToast";
 
 const CreateProject = () => {
 	const setToast = useToast();
+	const navigateTo = useNavigate();
 
 	const [selectedTemplate, setSelectedTemplate] = useState("");
 
@@ -17,7 +19,7 @@ const CreateProject = () => {
 		!disableInputs ? setSelectedTemplate("") : "";
 	const onSubmitProjectDetails = async (projectInfo: ProjectInfo) => {
 		setDisableInputs(true);
-		const { error } = await createProject({
+		const { error, data: projectCreationResponse } = await createProject({
 			projectName: projectInfo.projectName,
 			template: selectedTemplate,
 		});
@@ -25,6 +27,7 @@ const CreateProject = () => {
 		if (error) return setToast({ type: "error", message: error?.message });
 
 		closeProjectDetailsModal();
+		navigateTo(`/project/${projectCreationResponse?.project?._id}`);
 		return setToast({
 			type: "success",
 			message: "Project created successfully.",

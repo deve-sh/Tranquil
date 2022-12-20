@@ -12,7 +12,7 @@ const request = async (
 ) => {
 	try {
 		const response = await axios[method](endpoint, data, { headers });
-		return { error: null, response: response.data };
+		return response.data;
 	} catch (err: unknown | Error | any) {
 		console.log(err);
 		const errorMessage =
