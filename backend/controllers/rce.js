@@ -190,6 +190,7 @@ module.exports.initializeProject = async (req, res) => {
 		if (errorStartingApp) {
 			const shutDownProjectEC2Instance = require("../utils/rce/shutDownEC2Instance");
 			await shutDownProjectEC2Instance(instance.InstanceId);
+			await newProjectRunningDoc.delete();
 			return sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
 				step: "app-setup-failed",
 				error: errorStartingApp.message,
