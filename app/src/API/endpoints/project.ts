@@ -1,13 +1,11 @@
-export const createProjectEndpoint = `${
-	import.meta.env.VITE_BACKEND_URL
-}/api/projects/`;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-export const getUserProjectsEndpoint = `${
-	import.meta.env.VITE_BACKEND_URL
-}/api/projects/`;
+export const createProjectEndpoint = `${BACKEND_URL}/api/projects/`;
+
+export const getUserProjectsEndpoint = `${BACKEND_URL}/api/projects/`;
 
 export const getProjectInfoEndpoint = (projectId: string) =>
-	`${import.meta.env.VITE_BACKEND_URL}/api/projects/${projectId}`;
+	`${BACKEND_URL}/api/projects/${projectId}`;
 
 export const updateProjectEndpoint = (projectId: string) =>
-	`${import.meta.env.VITE_BACKEND_URL}/api/projects/${projectId}/`;
+	`${BACKEND_URL}/api/projects/${projectId}/`;

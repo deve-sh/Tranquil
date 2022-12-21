@@ -1,30 +1,48 @@
-import { useCallback, useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useParams } from "react-router-dom";
+
+import {
+	disconnectProjectSocket,
+	initializeProjectSocket,
+	setupProjectEventListeners,
+} from "../../../socket/projectSocketConnection";
 
 import CodeEditor from "./CodeEditor";
 import ProjectIframe from "./ProjectIframe";
 import ProjectTerminalOutput from "./ProjectTerminalOutput";
 
 const ProjectEditor = () => {
+	const { projectId } = useParams();
+
 	const [code, setCode] = useState(`function add(x, y){ return x + y; }`);
 	const [projectAppInstanceURL, setProjectAppInstanceURL] = useState("");
 
 	// Project Terminal Output
 	const [showAppTerminal, setShowAppTerminal] = useState(false);
-	const [appTerminalLogs, setAppTerminalLogs] = useState([
-		"> npm run start",
-		"Installing dependencies",
-		"> npm run start",
-		"Installing dependencies",
-		"> npm run start",
-		"Installing dependencies",
-		"> npm run start",
-		"Installing dependencies",
-		"> npm run start",
-	]);
-	const toggleProjectTerminal = useCallback(
-		() => setShowAppTerminal((show) => !show),
-		[]
+	const [appTerminalLogs, setAppTerminalLogs] = useState<string[]>([]);
+
+	const toggleProjectTerminal = () => setShowAppTerminal((show) => !show);
+
+	const onProjectSocketEvent = useCallback(
+		(eventName: string, eventPayload: Record<string, any>) => {
+			// Process and show logs to user.
+			if (eventPayload.data && eventPayload.data.log)
+				setAppTerminalLogs((logs) => [...logs, eventPayload.data.log]);
+		},
+		[projectId]
 	);
+
+	useEffect(() => {
+		if (projectId) {
+			// Initialize socket connection to project room.
+			initializeProjectSocket(projectId);
+			setupProjectEventListeners(onProjectSocketEvent);
+
+			return () => {
+				disconnectProjectSocket(projectId);
+			};
+		}
+	}, [projectId]);
 
 	return (
 		<div className="project-editor flex w-full h-screen">
