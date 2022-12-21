@@ -42,11 +42,9 @@ socketServer.on("connection", (client) => {
 		)
 			return;
 		const sendMessageToProjectSocketRoom = require("./sendMessageToProjectSocketRoom");
-		sendMessageToProjectSocketRoom(
-			event.projectId,
-			BROADCAST_TO_PROJECT,
-			event.data
-		);
+		sendMessageToProjectSocketRoom(event.projectId, BROADCAST_TO_PROJECT, {
+			data: event.data,
+		});
 	});
 
 	client.on(PROJECT_APP_RUNNER_SOCKET, (event) => {
