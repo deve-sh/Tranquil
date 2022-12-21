@@ -6,6 +6,7 @@ const {
 	LISTEN_TO_PROJECT,
 	BROADCAST_TO_PROJECT,
 	PROJECT_APP_RUNNER_SOCKET,
+	STOP_LISTENING_TO_PROJECT,
 } = require("../../common/socketTypes");
 
 const getProjectSocketRoomId = require("./utils/getProjectSocketRoomId");
