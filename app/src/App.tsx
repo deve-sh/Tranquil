@@ -2,12 +2,12 @@ import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 
 import Toast from "./Components/Layout/Toast";
-import ProjectEditor from "./Components/Project/Editor";
 
 // Socket
 import "./socket";
 
 const CreateProject = lazy(() => import("./Components/CreateProject"));
+const ProjectPage = lazy(() => import("./Components/Project/Editor"));
 
 function App() {
 	return (
@@ -25,14 +25,8 @@ function App() {
 				<Route
 					path="/project/:projectId"
 					element={
-						<Suspense fallback={<></>}>Project Page. Coming soon</Suspense>
-					}
-				/>
-				<Route
-					path="/project/:projectId/editor"
-					element={
 						<Suspense fallback={<></>}>
-							<ProjectEditor />
+							<ProjectPage />
 						</Suspense>
 					}
 				/>

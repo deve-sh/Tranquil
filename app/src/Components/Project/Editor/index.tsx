@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
+import { initializeProjectRCE } from "../../../API/RCE";
 
 import {
 	disconnectProjectSocket,
@@ -28,6 +29,13 @@ const ProjectEditor = () => {
 			// Process and show logs to user.
 			if (eventPayload.data && eventPayload.data.log)
 				setAppTerminalLogs((logs) => [...logs, eventPayload.data.log]);
+
+			// Process instance up and running event.
+			if (
+				eventPayload.step === "project-initialization-completed" &&
+				eventPayload.publicURL
+			)
+				setProjectAppInstanceURL(eventPayload.publicURL);
 		},
 		[projectId]
 	);
@@ -37,6 +45,11 @@ const ProjectEditor = () => {
 			// Initialize socket connection to project room.
 			initializeProjectSocket(projectId);
 			setupProjectEventListeners(onProjectSocketEvent);
+
+			// Send an initialization API Call for the project.
+			initializeProjectRCE(projectId).then(({ data: response }) => {
+				if (response.publicURL) setProjectAppInstanceURL(response.publicURL);
+			});
 
 			return () => {
 				disconnectProjectSocket(projectId);

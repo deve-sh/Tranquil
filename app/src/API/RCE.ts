@@ -7,7 +7,9 @@ import {
 
 export const initializeProjectRCE = async (projectId: string) => {
 	try {
-		const response = await request(initializeProjectRCEEndpoint(projectId));
+		const response = await request(initializeProjectRCEEndpoint(projectId), {
+			method: "post",
+		});
 		return { error: null, data: response };
 	} catch (error) {
 		return { error, data: null };

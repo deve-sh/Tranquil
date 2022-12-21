@@ -1,12 +1,12 @@
 const templateList = [
 	{
 		image: "https://i.ytimg.com/vi/C2HU3AY7IkU/maxresdefault.jpg",
-		id: "next",
+		id: "Next",
 		label: "Next.js",
 	},
 	{
 		image: "https://create-react-app.dev/img/logo-og.png",
-		id: "cra",
+		id: "CRA",
 		label: "React with CRA",
 	},
 ];
