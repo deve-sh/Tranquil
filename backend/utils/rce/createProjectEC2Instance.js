@@ -51,7 +51,6 @@ const createProjectEC2Instance = async (projectId) => {
 
 		let instanceStatusChecksPassed = 0;
 		nTries = 0;
-		console.log("Checking instance status for project:", projectId);
 		while (instanceStatusChecksPassed < 2) {
 			const params = { InstanceIds: [instanceId] };
 			const { InstanceStatuses: instanceStatuses } = await ec2

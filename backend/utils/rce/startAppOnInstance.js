@@ -1,9 +1,10 @@
-const generateEnvVarSetterCommandsForProject = require("./generateEnvVarSetterCommandsForProject");
-
 const startAppOnInstance = async (projectId, template, instance) => {
 	try {
 		const sendMessageToProjectSocketRoom = require("../../socket/sendMessageToProjectSocketRoom");
+		const generateEnvVarSetterCommandsForProject = require("./generateEnvVarSetterCommandsForProject");
+		const sshCommandOutputStreamerConfig = require("./sshOutputStream");
 		const getTemplateInfo = require("../getTemplateInfo");
+
 		const templateInfo = getTemplateInfo(template);
 		const { installCommand, startCommand } = templateInfo;
 
@@ -36,7 +37,8 @@ const startAppOnInstance = async (projectId, template, instance) => {
 
 		// Run Git Clone to get app-runner files.
 		await ssh.execCommand(
-			`git clone ${process.env.REPO_GITHUB_CLONE_PATH} ./repo`
+			`git clone ${process.env.REPO_GITHUB_CLONE_PATH} ./repo`,
+			sshCommandOutputStreamerConfig(projectId)
 		);
 		// Copy .env file from app-runner directory to app-runner on ec2 instance
 		const path = require("path");
@@ -95,23 +97,8 @@ const startAppOnInstance = async (projectId, template, instance) => {
 		// Run the app just created on the remote runner server.
 		// via the app-runner we copied to the instance.
 		ssh.execCommand(
-			`cd repo/app-runner && nvm use 16.10.0 &&  npm install && node ./index.js "${projectId}" "${installCommand}" "${startCommand}"`,
-			{
-				onStderr: (error) =>
-					sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
-						data: {
-							type: PROJECT_INSTANCE_STATES.STDOUT,
-							log: error.toString(),
-						},
-					}),
-				onStdout: (log) =>
-					sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
-						data: {
-							type: PROJECT_INSTANCE_STATES.STDOUT,
-							log: log.toString(),
-						},
-					}),
-			}
+			`cd repo/app-runner && nvm use 16.10.0 && npm install && node ./index.js "${projectId}" "${installCommand}" "${startCommand}"`,
+			sshCommandOutputStreamerConfig(projectId)
 		);
 
 		return {};
