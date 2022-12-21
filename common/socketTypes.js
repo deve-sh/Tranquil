@@ -1,4 +1,5 @@
 module.exports.LISTEN_TO_PROJECT = "listen-to-project";
+module.exports.STOP_LISTENING_TO_PROJECT = "stop-listening-to-project";
 module.exports.PROJECT_APP_RUNNER_SOCKET = "project-app-runner-initialized";
 module.exports.BROADCAST_TO_PROJECT = "broadcast-to-project";
 

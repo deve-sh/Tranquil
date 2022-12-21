@@ -23,6 +23,11 @@ socketServer.on("connection", (client) => {
 		client.join(getProjectSocketRoomId(event.projectId));
 	});
 
+	client.on(STOP_LISTENING_TO_PROJECT, (event) => {
+		if (!event || !event.projectId) return;
+		client.leave(getProjectSocketRoomId(event.projectId));
+	});
+
 	client.on(BROADCAST_TO_PROJECT, (event) => {
 		// This is mainly for the app runner script from EC2 Instance/Docker Container to send logs
 		// and signals to clients subscribing to the project's updates.
