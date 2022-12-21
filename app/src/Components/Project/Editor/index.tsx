@@ -26,16 +26,23 @@ const ProjectEditor = () => {
 
 	const onProjectSocketEvent = useCallback(
 		(eventName: string, eventPayload: Record<string, any>) => {
-			// Process and show logs to user.
-			if (eventPayload.data && eventPayload.data.log)
-				setAppTerminalLogs((logs) => [...logs, eventPayload.data.log]);
-
-			// Process instance up and running event.
+			// Process instance up event
 			if (
 				eventPayload.step === "project-initialization-completed" &&
 				eventPayload.publicURL
 			)
-				setProjectAppInstanceURL(eventPayload.publicURL);
+				setProjectAppInstanceURL("http://" + eventPayload.publicURL + ":3000");
+
+			// Process and show logs to user.
+			if (eventPayload.data && eventPayload.data.log)
+				setAppTerminalLogs((logs) => [...logs, eventPayload.data.log]);
+
+			// Process project update steps
+			if (eventPayload.step || eventPayload.message)
+				setAppTerminalLogs((logs) => [
+					...logs,
+					eventPayload.step || eventPayload.message,
+				]);
 		},
 		[projectId]
 	);
