@@ -10,7 +10,10 @@ const startAppOnInstance = async (projectId, template, instance) => {
 		if (templateInfo.deprecated)
 			return { error: new Error("Project template no longer supported.") };
 
-		const { PROJECT_INIT_UPDATE } = require("../../../common/socketTypes");
+		const {
+			PROJECT_INIT_UPDATE,
+			PROJECT_INSTANCE_STATES,
+		} = require("../../../common/socketTypes");
 		const { NodeSSH } = require("node-ssh");
 		const fse = require("fs-extra");
 
@@ -20,7 +23,7 @@ const startAppOnInstance = async (projectId, template, instance) => {
 		const ssh = new NodeSSH();
 		await ssh.connect({
 			host: instance.PublicIpAddress,
-			username: "root",
+			username: "ec2-user",
 			privateKey: require("./ssh-key"),
 		});
 
@@ -92,11 +95,28 @@ const startAppOnInstance = async (projectId, template, instance) => {
 		// Run the app just created on the remote runner server.
 		// via the app-runner we copied to the instance.
 		ssh.execCommand(
-			`cd repo/app-runner && npm install && node ./index.js "${projectId}" "${installCommand}" "${startCommand}"`
+			`cd repo/app-runner && nvm use 16.10.0 &&  npm install && node ./index.js "${projectId}" "${installCommand}" "${startCommand}"`,
+			{
+				onStderr: (error) =>
+					sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
+						data: {
+							type: PROJECT_INSTANCE_STATES.STDOUT,
+							log: error.toString(),
+						},
+					}),
+				onStdout: (log) =>
+					sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
+						data: {
+							type: PROJECT_INSTANCE_STATES.STDOUT,
+							log: log.toString(),
+						},
+					}),
+			}
 		);
 
 		return {};
 	} catch (error) {
+		console.log(error);
 		return { error };
 	}
 };
