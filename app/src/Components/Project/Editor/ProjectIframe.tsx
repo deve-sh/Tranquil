@@ -1,6 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { TbRefresh } from "react-icons/tb";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { VscTerminalBash, VscDebugRestartFrame } from "react-icons/vsc";
+
+import Button from "../../Reusables/Button";
+
 import { restartProjectAppServer } from "../../../API/Projects";
 
 interface Props {
@@ -41,10 +45,11 @@ const ProjectIframe = ({
 						}}
 						disabled={disableButtons}
 					>
-						<TbRefresh />
+						<VscDebugRestartFrame />
 					</button>
 					<button
 						className="cursor-pointer border-none outline-none bg-transparent"
+						title="Refresh Page"
 						onClick={reloadIframe}
 						disabled={disableButtons}
 					>
@@ -63,11 +68,22 @@ const ProjectIframe = ({
 					)}
 				</div>
 			</div>
-			<iframe
-				src={src || "https://google.com/"}
-				className="project-editor-iframe w-full h-full"
-				ref={iframeRef}
-			/>
+			{!src ? (
+				<div className="w-full h-full items-center flex justify-center flex-col gap-4 p-4 text-center">
+					<AiOutlineLoading3Quarters className="animate-spin text-4xl" />
+					<p className="text-lg font-medium">Your Project is loading.</p>
+					<p className="text-md">Please check the terminal for logs.</p>
+					<Button onClick={toggleTerminal} className="p-2">
+						Toggle Terminal
+					</Button>
+				</div>
+			) : (
+				<iframe
+					src={src}
+					className="project-editor-iframe w-full h-full"
+					ref={iframeRef}
+				/>
+			)}
 		</div>
 	);
 };
