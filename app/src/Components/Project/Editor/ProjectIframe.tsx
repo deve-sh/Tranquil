@@ -1,18 +1,24 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { TbRefresh } from "react-icons/tb";
 import { VscTerminalBash } from "react-icons/vsc";
 
 interface Props {
 	src: string;
-	isTerminalOpen?: boolean;
 	toggleTerminal?: () => any;
+	onReady: (ref: HTMLIFrameElement) => any;
+	reloadIframe: () => any;
 }
 
-const ProjectIframe = ({ src = "", toggleTerminal, isTerminalOpen }: Props) => {
+const ProjectIframe = ({
+	src = "",
+	toggleTerminal,
+	onReady,
+	reloadIframe,
+}: Props) => {
 	const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
-	const reloadIframe = useCallback(() => {
-		if (iframeRef.current) iframeRef.current.src = iframeRef.current.src;
+	useEffect(() => {
+		if (iframeRef.current && onReady) onReady(iframeRef.current);
 	}, []);
 
 	return (

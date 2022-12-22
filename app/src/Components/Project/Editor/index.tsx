@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { initializeProjectRCE } from "../../../API/RCE";
 
@@ -17,6 +17,11 @@ const ProjectEditor = () => {
 
 	const [code, setCode] = useState(`function add(x, y){ return x + y; }`);
 	const [projectAppInstanceURL, setProjectAppInstanceURL] = useState("");
+	const iframeRef = useRef<HTMLIFrameElement | null>(null);
+
+	const reloadIframe = useCallback(() => {
+		if (iframeRef.current) iframeRef.current.src = iframeRef.current.src;
+	}, []);
 
 	// Project Terminal Output
 	const [showAppTerminal, setShowAppTerminal] = useState(false);
@@ -43,6 +48,12 @@ const ProjectEditor = () => {
 					...logs,
 					eventPayload.step || eventPayload.message,
 				]);
+
+			if (
+				eventPayload.data &&
+				eventPayload.data.type === "project-instance-ready"
+			)
+				reloadIframe();
 		},
 		[projectId]
 	);
@@ -73,6 +84,8 @@ const ProjectEditor = () => {
 				<ProjectIframe
 					src={projectAppInstanceURL}
 					toggleTerminal={toggleProjectTerminal}
+					onReady={(ref) => (iframeRef.current = ref)}
+					reloadIframe={reloadIframe}
 				/>
 			</div>
 			<ProjectTerminalOutput
