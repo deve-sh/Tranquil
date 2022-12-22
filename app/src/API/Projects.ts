@@ -6,6 +6,7 @@ import {
 	getProjectInfoEndpoint,
 	updateProjectEndpoint,
 } from "./endpoints/project";
+import { restartProjectServerEndpoint } from "./endpoints/rce";
 
 type CreateProjectInputs = { projectName: string; template: string };
 export const createProject = async (projectInputs: CreateProjectInputs) => {
@@ -43,6 +44,15 @@ export const getUserProjects = async () => {
 export const getProjectInfo = async (projectId: string) => {
 	try {
 		const response = await request(getProjectInfoEndpoint(projectId));
+		return { error: null, data: response };
+	} catch (error) {
+		return { error, data: null };
+	}
+};
+
+export const restartProjectAppServer = async (projectId: string) => {
+	try {
+		const response = await request(restartProjectServerEndpoint(projectId));
 		return { error: null, data: response };
 	} catch (error) {
 		return { error, data: null };

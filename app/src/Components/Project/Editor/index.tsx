@@ -82,6 +82,7 @@ const ProjectEditor = () => {
 			</div>
 			<div className="project-editor-section sm:w-2/5">
 				<ProjectIframe
+					projectId={projectId}
 					src={projectAppInstanceURL}
 					toggleTerminal={toggleProjectTerminal}
 					onReady={(ref) => (iframeRef.current = ref)}
