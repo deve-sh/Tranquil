@@ -7,6 +7,7 @@ const {
 	BROADCAST_TO_PROJECT,
 	PROJECT_APP_RUNNER_SOCKET,
 	STOP_LISTENING_TO_PROJECT,
+	PROJECT_INSTANCE_STATES,
 } = require("../../common/socketTypes");
 
 const getProjectSocketRoomId = require("./utils/getProjectSocketRoomId");
@@ -45,6 +46,11 @@ socketServer.on("connection", (client) => {
 		sendMessageToProjectSocketRoom(event.projectId, BROADCAST_TO_PROJECT, {
 			data: event.data,
 		});
+		// Special event types that require some backend level intervention too.
+		if (event.data.type === PROJECT_INSTANCE_STATES.READY) {
+			const setProjectInstanceAsReadyInDB = require("../utils/rce/setProjectInstanceAsReadyInDB");
+			setProjectInstanceAsReadyInDB(event.projectId);
+		}
 	});
 
 	client.on(PROJECT_APP_RUNNER_SOCKET, (event) => {

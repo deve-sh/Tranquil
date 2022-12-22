@@ -206,7 +206,6 @@ module.exports.initializeProject = async (req, res) => {
 		newProjectRunningDoc.publicURL = instance.PublicDnsName;
 		newProjectRunningDoc.machineId = instance.InstanceId;
 		newProjectRunningDoc.instanceMetaData = instance;
-		newProjectRunningDoc.status = "live";
 		await newProjectRunningDoc.save();
 
 		return sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
