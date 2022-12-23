@@ -15,6 +15,10 @@ const getFileNameFromFilePath = (filePath: string) => {
 	return filePath.split("/").pop();
 };
 
+const getFileExtensionFromFilePath = (filePath: string) => {
+	return filePath.split(".").pop();
+};
+
 const createNestedFileStructure = (fileList: FileFromBackend[]) => {
 	let tree: any[] = [];
 
@@ -28,7 +32,11 @@ const createNestedFileStructure = (fileList: FileFromBackend[]) => {
 			...file,
 			path: file.path.replace(/\\/g, "/"),
 		}))
-		.map((file) => ({ ...file, fileName: getFileNameFromFilePath(file.path) }));
+		.map((file) => ({
+			...file,
+			fileName: getFileNameFromFilePath(file.path),
+			extension: getFileExtensionFromFilePath(file.path),
+		}));
 
 	// Create entries for individual directories at the top
 	let individualDirectories:
