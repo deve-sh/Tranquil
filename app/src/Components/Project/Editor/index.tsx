@@ -8,6 +8,7 @@ import {
 	initializeProjectSocket,
 	setupProjectEventListeners,
 } from "../../../socket/projectSocketConnection";
+import createNestedFileStructure from "../../../utils/createNestedFileStructure";
 
 import CodeEditor from "./CodeEditor";
 import ProjectIframe from "./ProjectIframe";
@@ -71,6 +72,8 @@ const ProjectEditor = () => {
 
 		const fileList = response.fileList;
 		setFileList(fileList);
+
+		createNestedFileStructure(fileList);
 
 		// Find the last updated file from the list and set that as the active file.
 		let latestUpdatedFile = null;
