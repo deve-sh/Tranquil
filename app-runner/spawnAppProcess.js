@@ -70,7 +70,7 @@ const spawnAppServer = ({ command, projectId, socket }) => {
 		socket.emit(BROADCAST_TO_PROJECT, {
 			projectId,
 			broadCastSecret,
-			data: { type: PROJECT_INSTANCE_STATES.READY },
+			data: { state: PROJECT_INSTANCE_STATES.READY },
 		});
 	});
 

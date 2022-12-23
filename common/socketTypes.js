@@ -16,4 +16,5 @@ module.exports.PROJECT_INSTANCE_STATES = {
 	STOPPED: "project-instance-stopped",
 	CRASHED: "project-instance-crashed",
 	READY: "project-instance-ready",
+	RESTARTING: "project-instance-restarting",
 };

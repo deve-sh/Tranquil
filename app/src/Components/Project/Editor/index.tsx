@@ -57,9 +57,15 @@ const ProjectEditor = () => {
 
 			if (
 				eventPayload.data &&
-				eventPayload.data.type === "project-instance-ready"
+				eventPayload.data.state === "project-instance-ready"
 			)
 				reloadIframe();
+
+			if (
+				eventPayload.data &&
+				eventPayload.data.state === "project-instance-restarting"
+			)
+				setProjectAppInstanceURL("");
 		},
 		[projectId]
 	);

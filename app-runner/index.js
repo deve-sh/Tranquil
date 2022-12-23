@@ -69,6 +69,13 @@ if (projectId && installCommand && startCommand && broadCastSecret) {
 					log: "Re-installing dependencies and restarting server",
 				},
 			});
+			socket.emit(BROADCAST_TO_PROJECT, {
+				projectId,
+				broadCastSecret: process.env.PROJECT_SOCKET_BROADCAST_SECRET,
+				data: {
+					state: PROJECT_INSTANCE_STATES.RESTARTING,
+				},
+			});
 			killProcess(currentlyRunningAppProcess.pid.toString());
 			currentlyRunningAppProcess = spawnAppProcess({
 				command: appRunningCommand,
