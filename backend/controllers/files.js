@@ -19,6 +19,7 @@ module.exports.getFileContents = async (req, res) => {
 		const { fileId } = req.params;
 		const file = await ProjectFile.findById(fileId).select("contents").lean();
 		if (!file) return res.sendStatus(404);
+		res.setHeader("content-type", "text/plain");
 		return res.send(file.contents);
 	} catch (err) {
 		return res

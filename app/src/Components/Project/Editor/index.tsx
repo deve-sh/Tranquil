@@ -118,7 +118,12 @@ const ProjectEditor = () => {
 	useEffect(() => {
 		if (activeFileId && projectId) {
 			getProjectFileContent(projectId, activeFileId).then(
-				({ data: contents }) => setCode(contents)
+				({ data: contents }) =>
+					setCode(
+						typeof contents === "string"
+							? contents
+							: JSON.stringify(contents, null, 4)
+					)
 			);
 		} else setCode("");
 	}, [activeFileId]);
