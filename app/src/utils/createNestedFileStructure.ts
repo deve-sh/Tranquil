@@ -8,12 +8,12 @@ import flatToTree from "flat-to-tree";
 
 import type FileFromBackend from "../types/File";
 
-const getDirectoryFromFilePath = (filePath: string) => {
+export const getDirectoryFromFilePath = (filePath: string) => {
 	const fileNameFragments = filePath.split("/");
-	const directoriesInFilename = fileNameFragments
+	const directoryInFilename = fileNameFragments
 		.slice(0, fileNameFragments.length - 1)
 		.join("/");
-	return directoriesInFilename;
+	return directoryInFilename;
 };
 
 const getFileNameFromFilePath = (filePath: string) => {

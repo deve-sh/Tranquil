@@ -1,5 +1,3 @@
-import { Fragment, type ReactElement } from "react";
-
 import { AiFillFolder, AiFillFolderOpen, AiFillFile } from "react-icons/ai";
 
 import useExpandedDirectories from "../../../stores/ProjectEditor/expandedDirectories";
@@ -34,7 +32,7 @@ const FileView = ({ tree, className, activeFileId, onFileClick }: Props) => {
 	return (
 		<>
 			{tree.map((entry) => {
-				const entryId = entry._id || (entry.path as string);
+				const entryId = (entry._id || entry.path) as string;
 				return (
 					<div key={entryId} className={`${className || ""} p-1`}>
 						<div

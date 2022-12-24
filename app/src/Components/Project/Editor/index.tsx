@@ -8,7 +8,12 @@ import {
 	initializeProjectSocket,
 	setupProjectEventListeners,
 } from "../../../socket/projectSocketConnection";
-import createNestedFileStructure from "../../../utils/createNestedFileStructure";
+
+import type FileFromBackend from "../../../types/File";
+import createNestedFileStructure, {
+	getDirectoryFromFilePath,
+} from "../../../utils/createNestedFileStructure";
+import useExpandedDirectories from "../../../stores/ProjectEditor/expandedDirectories";
 
 import CodeEditor from "./CodeEditor";
 import FileView from "./FileView";
@@ -27,10 +32,11 @@ const ProjectEditor = () => {
 	}, []);
 
 	// File List and active file info
-	const [fileList, setFileList] = useState([]);
+	const [fileList, setFileList] = useState<FileFromBackend[]>([]);
 	const [nestedFileTree, setNestedFileTree] = useState<any[]>([]);
 	const [activeFileId, setActiveFileId] = useState("");
 	const [code, setCode] = useState("");
+	const setExpanded = useExpandedDirectories((state) => state.setExpanded);
 
 	// Project Terminal Output
 	const [showAppTerminal, setShowAppTerminal] = useState(false);
@@ -79,7 +85,12 @@ const ProjectEditor = () => {
 		if (!response.fileList) return;
 
 		const fileList = response.fileList;
-		setFileList(fileList);
+		setFileList(
+			fileList.map((file: FileFromBackend) => ({
+				...file,
+				path: file.path.replace(/[\\]/g, "/"),
+			}))
+		);
 
 		createNestedFileStructure(fileList);
 
@@ -131,6 +142,19 @@ const ProjectEditor = () => {
 	useEffect(() => {
 		if (fileList.length) setNestedFileTree(createNestedFileStructure(fileList));
 	}, [fileList]);
+
+	useEffect(() => {
+		// Expand all the directories it's contained in.
+		if (fileList.length && activeFileId && nestedFileTree) {
+			const file = fileList.find((file) => file._id === activeFileId);
+			if (file) {
+				const directories = getDirectoryFromFilePath(file.path);
+				const directoryList = directories.split("/");
+				for (const directoryPath of directoryList)
+					setExpanded(directoryPath, true);
+			}
+		}
+	}, [activeFileId, fileList, nestedFileTree]);
 
 	return (
 		<div className="project-editor flex w-full h-screen">
