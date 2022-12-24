@@ -53,6 +53,7 @@ const createNestedFileStructure = (fileList: FileFromBackend[]) => {
 		path: dirName,
 		isDirectory: true,
 		parentId: getDirectoryFromFilePath(dirName),
+		fileName: getFileNameFromFilePath(dirName),
 	}));
 
 	tree = [...individualDirectories];
@@ -76,7 +77,15 @@ const createNestedFileStructure = (fileList: FileFromBackend[]) => {
 		children: "children",
 	});
 
-	return tree;
+	return [
+		{
+			fileName: "root",
+			path: "root",
+			_id: "root",
+			isDirectory: true,
+			children: tree,
+		},
+	];
 };
 
 export default createNestedFileStructure;
