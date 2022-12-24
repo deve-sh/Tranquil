@@ -11,6 +11,7 @@ import {
 import createNestedFileStructure from "../../../utils/createNestedFileStructure";
 
 import CodeEditor from "./CodeEditor";
+import FileView from "./FileView";
 import ProjectIframe from "./ProjectIframe";
 import ProjectTerminalOutput from "./ProjectTerminalOutput";
 
@@ -27,6 +28,7 @@ const ProjectEditor = () => {
 
 	// File List and active file info
 	const [fileList, setFileList] = useState([]);
+	const [nestedFileTree, setNestedFileTree] = useState<any[]>([]);
 	const [activeFileId, setActiveFileId] = useState("");
 	const [code, setCode] = useState("");
 
@@ -121,10 +123,22 @@ const ProjectEditor = () => {
 		} else setCode("");
 	}, [activeFileId]);
 
+	useEffect(() => {
+		if (fileList.length) setNestedFileTree(createNestedFileStructure(fileList));
+	}, [fileList]);
+
 	return (
 		<div className="project-editor flex w-full h-screen">
-			<div className="project-editor-section sm:w-3/5 h-full bg-editor text-white flex flex-col">
-				<CodeEditor code={code} onChange={(_, __, value) => setCode(value)} />
+			<div className="project-editor-section sm:w-1/5">
+				<FileView tree={nestedFileTree} />
+			</div>
+			<div className="project-editor-section sm:w-2/5 h-full bg-editor text-white flex flex-col">
+				<CodeEditor
+					code={code}
+					onChange={(_, __, value) =>
+						projectAppInstanceURL ? setCode(value) : null
+					}
+				/>
 			</div>
 			<div className="project-editor-section sm:w-2/5">
 				<ProjectIframe
