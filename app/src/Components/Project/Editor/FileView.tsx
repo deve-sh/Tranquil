@@ -38,7 +38,7 @@ const FileView = ({ tree, className, activeFileId, onFileClick }: Props) => {
 				return (
 					<div key={entryId} className={`${className || ""} p-1`}>
 						<div
-							className={`fileview-fragment flex items-center gap-2 cursor-pointer ${
+							className={`fileview-fragment flex items-center gap-2 text-white cursor-pointer ${
 								!entry.isDirectory && entry._id === activeFileId
 									? "active-file bg-slate-400 px-1 rounded-sm"
 									: ""
