@@ -31,7 +31,7 @@ const createNestedFileStructure = (fileList: FileFromBackend[]) => {
 	let sortedFileList = fileList
 		.sort(
 			(file1, file2) =>
-				file2.path.split(/[\\/]/g).length - file1.path.split(/[\\/]/g).length
+				file2.path.split("/").length - file1.path.split("/").length
 		)
 		.map((file) => ({
 			...file,

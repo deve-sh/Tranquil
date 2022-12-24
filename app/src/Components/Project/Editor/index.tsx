@@ -10,15 +10,14 @@ import {
 } from "../../../socket/projectSocketConnection";
 
 import type FileFromBackend from "../../../types/File";
-import createNestedFileStructure, {
-	getDirectoryFromFilePath,
-} from "../../../utils/createNestedFileStructure";
-import useExpandedDirectories from "../../../stores/ProjectEditor/expandedDirectories";
+import createNestedFileStructure from "../../../utils/createNestedFileStructure";
 
 import CodeEditor from "./CodeEditor";
 import FileView from "./FileView";
 import ProjectIframe from "./ProjectIframe";
 import ProjectTerminalOutput from "./ProjectTerminalOutput";
+
+import useExpandDirsForActiveFile from "./hooks/useExpandDirsForActiveFile";
 
 const ProjectEditor = () => {
 	const { projectId } = useParams();
@@ -36,7 +35,6 @@ const ProjectEditor = () => {
 	const [nestedFileTree, setNestedFileTree] = useState<any[]>([]);
 	const [activeFileId, setActiveFileId] = useState("");
 	const [code, setCode] = useState("");
-	const setExpanded = useExpandedDirectories((state) => state.setExpanded);
 
 	// Project Terminal Output
 	const [showAppTerminal, setShowAppTerminal] = useState(false);
@@ -84,14 +82,11 @@ const ProjectEditor = () => {
 		const { data: response } = await getProjectFileList(projectId);
 		if (!response.fileList) return;
 
-		const fileList = response.fileList;
-		setFileList(
-			fileList.map((file: FileFromBackend) => ({
-				...file,
-				path: file.path.replace(/[\\]/g, "/"),
-			}))
-		);
-
+		const fileList = response.fileList.map((file: FileFromBackend) => ({
+			...file,
+			path: file.path.replace(/[\\]/g, "/"),
+		}));
+		setFileList(fileList);
 		createNestedFileStructure(fileList);
 
 		// Find the last updated file from the list and set that as the active file.
@@ -143,18 +138,7 @@ const ProjectEditor = () => {
 		if (fileList.length) setNestedFileTree(createNestedFileStructure(fileList));
 	}, [fileList]);
 
-	useEffect(() => {
-		// Expand all the directories it's contained in.
-		if (fileList.length && activeFileId && nestedFileTree) {
-			const file = fileList.find((file) => file._id === activeFileId);
-			if (file) {
-				const directories = getDirectoryFromFilePath(file.path);
-				const directoryList = directories.split("/");
-				for (const directoryPath of directoryList)
-					setExpanded(directoryPath, true);
-			}
-		}
-	}, [activeFileId, fileList, nestedFileTree]);
+	useExpandDirsForActiveFile(activeFileId, fileList);
 
 	return (
 		<div className="project-editor flex w-full h-screen">
