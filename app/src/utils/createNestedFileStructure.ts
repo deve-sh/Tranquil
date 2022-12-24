@@ -1,6 +1,11 @@
 // @ts-ignore
 import flatToTree from "flat-to-tree";
 
+/**
+ * Flow: Gets a flat file tree, creates a list of directories and assigns parentId to every file and directory.
+ * Uses the flat-to-tree library that then uses the parent field to turn the flat array into a nested array that can be used by the FileView.tsx file.
+ */
+
 import type FileFromBackend from "../types/File";
 
 const getDirectoryFromFilePath = (filePath: string) => {
