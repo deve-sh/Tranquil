@@ -34,6 +34,7 @@ const ProjectEditor = () => {
 	const [fileList, setFileList] = useState<FileFromBackend[]>([]);
 	const [nestedFileTree, setNestedFileTree] = useState<any[]>([]);
 	const [activeFileId, setActiveFileId] = useState("");
+	const [activeFile, setActiveFile] = useState<FileFromBackend | null>(null);
 	const [code, setCode] = useState("");
 
 	// Project Terminal Output
@@ -100,6 +101,7 @@ const ProjectEditor = () => {
 				latestUpdatedFile = fileEntry;
 		}
 		setActiveFileId(latestUpdatedFile._id);
+		setActiveFile(latestUpdatedFile);
 	}, [projectId]);
 
 	useEffect(() => {
@@ -140,13 +142,20 @@ const ProjectEditor = () => {
 
 	useExpandDirsForActiveFile(activeFileId, fileList);
 
+	const onFileClickFromViewer = (fileId: string) => {
+		setActiveFile(
+			fileList.find((file) => file._id === fileId) as FileFromBackend
+		);
+		setActiveFileId(fileId);
+	};
+
 	return (
 		<div className="project-editor flex w-full h-screen">
 			<div className="project-editor-section sm:w-1/5 bg-slate-700 h-full">
 				<FileView
 					tree={nestedFileTree}
 					activeFileId={activeFileId}
-					onFileClick={setActiveFileId}
+					onFileClick={onFileClickFromViewer}
 				/>
 			</div>
 			<div className="project-editor-section sm:w-2/5 h-full bg-editor text-white flex flex-col">
@@ -155,6 +164,7 @@ const ProjectEditor = () => {
 					onChange={(_, __, value) =>
 						projectAppInstanceURL ? setCode(value) : null
 					}
+					extension={activeFile?.path?.split(".").pop() || ""}
 				/>
 			</div>
 			<div className="project-editor-section sm:w-2/5">
