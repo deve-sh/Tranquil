@@ -1,4 +1,7 @@
 import { Fragment, type ReactElement } from "react";
+
+import { AiFillFolder, AiFillFolderOpen, AiFillFile } from "react-icons/ai";
+
 import useExpandedDirectories from "../../../stores/ProjectEditor/expandedDirectories";
 
 interface TreeFragment {
@@ -12,9 +15,19 @@ interface TreeFragment {
 interface Props {
 	tree: TreeFragment[];
 	className?: string;
+	activeFileId?: string;
+	onFileClick?: (fileId: string) => any;
 }
 
-const FileView = ({ tree, className }: Props) => {
+const Icon = ({ isDirectory = false, expanded = false }) => {
+	if (isDirectory) {
+		if (expanded) return <AiFillFolderOpen />;
+		return <AiFillFolder />;
+	}
+	return <AiFillFile />;
+};
+
+const FileView = ({ tree, className, activeFileId, onFileClick }: Props) => {
 	const expanded = useExpandedDirectories((state) => state.expanded);
 	const setExpanded = useExpandedDirectories((state) => state.setExpanded);
 
@@ -23,13 +36,24 @@ const FileView = ({ tree, className }: Props) => {
 			{tree.map((entry) => {
 				const entryId = entry._id || (entry.path as string);
 				return (
-					<div key={entryId} className={className}>
+					<div key={entryId} className={`${className || ""} p-1`}>
 						<div
-							className="fileview-fragment flex items-center gap-2 cursor-pointer"
-							onClick={() => setExpanded(entryId, !expanded[entryId])}
+							className={`fileview-fragment flex items-center gap-2 cursor-pointer ${
+								!entry.isDirectory && entry._id === activeFileId
+									? "active-file bg-slate-400 px-1 rounded-sm"
+									: ""
+							}`}
+							onClick={() =>
+								entry.isDirectory
+									? setExpanded(entryId, !expanded[entryId])
+									: onFileClick?.(entry._id as string)
+							}
 						>
 							<span className="fileview-fragment-classification">
-								{entry.isDirectory ? "D" : "F"}
+								<Icon
+									isDirectory={entry.isDirectory}
+									expanded={expanded[entryId]}
+								/>
 							</span>
 							<span className="fileview-fragment-classification">
 								{entry.fileName || entry.path}
@@ -38,7 +62,12 @@ const FileView = ({ tree, className }: Props) => {
 						{entry.isDirectory &&
 						entry.children?.length &&
 						expanded[entryId] ? (
-							<FileView tree={entry.children} className="ml-4" />
+							<FileView
+								tree={entry.children}
+								className="ml-4"
+								activeFileId={activeFileId}
+								onFileClick={onFileClick}
+							/>
 						) : (
 							""
 						)}
