@@ -169,7 +169,7 @@ const ProjectEditor = () => {
 
 		// Make API call to tell backend to update file.
 		setCodeEditingDisabled(true);
-		await updateProjectFile(projectId, {
+		await updateProjectFile(projectId, activeFileId, {
 			path: activeFile?.path,
 			newContent,
 			operation: "update",
@@ -180,6 +180,28 @@ const ProjectEditor = () => {
 		// Send a restart signal to the server.
 		if (activeFile.path.includes("package.json"))
 			restartProjectAppServer(projectId);
+	};
+
+	// Existing File deletion mode
+	const deleteFile = async (fileId: string) => {
+		if (!projectId) return;
+
+		const file = fileList.find((file) => file._id === fileId);
+		if (!file) return;
+
+		if (!window.confirm("Are you sure? This is an irreversible action."))
+			return;
+
+		setCodeEditingDisabled(true);
+		const { error } = await updateProjectFile(projectId, fileId, {
+			path: file.path,
+			newContent: "",
+			operation: "delete",
+		});
+		if (error) return toast({ type: "error", message: error.message });
+		// Refresh file list
+		await getFileListAndSetLastUpdatedFile();
+		setCodeEditingDisabled(false);
 	};
 
 	// File Creation Mode
@@ -204,10 +226,11 @@ const ProjectEditor = () => {
 			return toast({ type: "error", message: "Invalid File Name" });
 
 		setCodeEditingDisabled(true);
-		await createProjectFile(projectId, {
+		const { error } = await createProjectFile(projectId, {
 			path: directoryToCreateDivIn + "/" + newFileName,
 			contents: "",
 		});
+		if (error) return toast({ type: "error", message: error.message });
 		// Refetch updated file list
 		await getFileListAndSetLastUpdatedFile();
 		setCodeEditingDisabled(false);
@@ -221,6 +244,7 @@ const ProjectEditor = () => {
 					activeFileId={activeFileId}
 					onFileClick={onFileClickFromViewer}
 					onClickFileCreate={onClickFileCreateInFileViewer}
+					onClickFileDelete={deleteFile}
 				/>
 			</div>
 			<div className="project-editor-section sm:w-2/5 h-full bg-editor text-white flex flex-col">

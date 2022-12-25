@@ -116,6 +116,7 @@ const FileView = ({
 								activeFileId={activeFileId}
 								onFileClick={onFileClick}
 								onClickFileCreate={onClickFileCreate}
+								onClickFileDelete={onClickFileDelete}
 							/>
 						) : (
 							""
