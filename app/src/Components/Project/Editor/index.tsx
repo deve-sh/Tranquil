@@ -29,6 +29,7 @@ import HiddenFileUploadInput from "./HiddenFileUploadInput";
 
 import useExpandDirsForActiveFile from "./hooks/useExpandDirsForActiveFile";
 import isDeletionProtectedFile from "./utils/deletionProtectedFiles";
+import BinaryContent from "./BinaryContent";
 
 const ProjectEditor = () => {
 	const { projectId } = useParams();
@@ -307,17 +308,21 @@ const ProjectEditor = () => {
 				/>
 			</div>
 			<div className="project-editor-section sm:w-2/5 h-full bg-editor text-white flex flex-col">
-				<CodeEditor
-					code={code}
-					onChange={(_, __, value) =>
-						projectAppInstanceURL && !codeEditingDisabled
-							? setCode(value)
-							: null
-					}
-					extension={activeFile?.path?.split(".").pop() || ""}
-					onSave={onFileSave}
-					key={activeFileId}
-				/>
+				{activeFile?.isReadableContent === false ? (
+					<BinaryContent />
+				) : (
+					<CodeEditor
+						code={code}
+						onChange={(_, __, value) =>
+							projectAppInstanceURL && !codeEditingDisabled
+								? setCode(value)
+								: null
+						}
+						extension={activeFile?.path?.split(".").pop() || ""}
+						onSave={onFileSave}
+						key={activeFileId}
+					/>
+				)}
 			</div>
 			<div className="project-editor-section sm:w-2/5">
 				<ProjectIframe

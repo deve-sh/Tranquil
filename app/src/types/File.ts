@@ -3,4 +3,5 @@ export default interface FileFromBackend {
 	updatedAt?: string;
 	createdAt?: string;
 	path: string;
+	isReadableContent?: boolean;
 }
