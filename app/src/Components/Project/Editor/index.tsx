@@ -189,7 +189,7 @@ const ProjectEditor = () => {
 				<CodeEditor
 					code={code}
 					onChange={(_, __, value) =>
-						projectAppInstanceURL && !setCodeEditingDisabled
+						projectAppInstanceURL && !codeEditingDisabled
 							? setCode(value)
 							: null
 					}
