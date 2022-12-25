@@ -6,6 +6,7 @@ import {
 	getProjectFileList,
 	updateProjectFile,
 } from "../../../API/Files";
+import { restartProjectAppServer } from "../../../API/Projects";
 import { initializeProjectRCE } from "../../../API/RCE";
 
 import {
@@ -168,6 +169,11 @@ const ProjectEditor = () => {
 			operation: "update",
 		});
 		setCodeEditingDisabled(false);
+
+		// If the file updated is package.json, that means app name has changed or dependencies have changed.
+		// Send a restart signal to the server.
+		if (activeFile.path.includes("package.json"))
+			restartProjectAppServer(projectId);
 	};
 
 	return (
