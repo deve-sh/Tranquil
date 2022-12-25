@@ -29,14 +29,14 @@ const CodeEditor = (props: CodeEditorProps) => {
 	const [cursorPosition, setCursorPosition] = useState({ ch: 0, line: 0 });
 
 	useEffect(() => {
-		if (editorRef.current) editorRef.current.setSize("100%", "100%");
+		if (editorRef.current) editorRef.current.setSize("100%", "96.5%");
 	}, []);
 
 	const onCursorActivity = (editor: CodemirrorEditorType) =>
 		setCursorPosition(editor.getCursor());
 
 	return (
-		<>
+		<div className="h-full relative">
 			<CodeMirror
 				value={props.code || ""}
 				onBeforeChange={props.onChange}
@@ -60,8 +60,9 @@ const CodeEditor = (props: CodeEditorProps) => {
 				language={languageNamesByExtension[props.extension] || "Text"}
 				lineNumber={cursorPosition.line + 1}
 				colNumber={cursorPosition.ch + 1}
+				className="absolute bottom-0 left-0 right-0"
 			/>
-		</>
+		</div>
 	);
 };
 
