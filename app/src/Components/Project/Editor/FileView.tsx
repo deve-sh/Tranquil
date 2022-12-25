@@ -5,8 +5,10 @@ import {
 	SiCss3,
 	SiHtml5,
 	SiMarkdown,
+	SiReact,
 } from "react-icons/si";
 import { VscJson } from "react-icons/vsc";
+import { BsFileEarmarkPlusFill } from "react-icons/bs";
 
 import useExpandedDirectories from "../../../stores/ProjectEditor/expandedDirectories";
 
@@ -23,6 +25,7 @@ interface Props {
 	className?: string;
 	activeFileId?: string;
 	onFileClick?: (fileId: string) => any;
+	onClickFileCreate?: (dirName: string) => any;
 }
 
 const Icon = ({ isDirectory = false, expanded = false, extension = "" }) => {
@@ -30,8 +33,9 @@ const Icon = ({ isDirectory = false, expanded = false, extension = "" }) => {
 		if (expanded) return <AiFillFolderOpen />;
 		return <AiFillFolder />;
 	}
-	if (["js", "jsx"].includes(extension)) return <SiJavascript />;
-	if (["ts", "tsx"].includes(extension)) return <SiTypescript />;
+	if (["js"].includes(extension)) return <SiJavascript />;
+	if (["ts"].includes(extension)) return <SiTypescript />;
+	if (["jsx", "tsx"].includes(extension)) return <SiReact />;
 	if (["css", "scss"].includes(extension)) return <SiCss3 />;
 	if (["html", "htm"].includes(extension)) return <SiHtml5 />;
 	if (["md", "mdx"].includes(extension)) return <SiMarkdown />;
@@ -39,7 +43,13 @@ const Icon = ({ isDirectory = false, expanded = false, extension = "" }) => {
 	return <AiFillFile />;
 };
 
-const FileView = ({ tree, className, activeFileId, onFileClick }: Props) => {
+const FileView = ({
+	tree,
+	className,
+	activeFileId,
+	onFileClick,
+	onClickFileCreate,
+}: Props) => {
 	const expanded = useExpandedDirectories((state) => state.expanded);
 	const setExpanded = useExpandedDirectories((state) => state.setExpanded);
 
@@ -53,7 +63,7 @@ const FileView = ({ tree, className, activeFileId, onFileClick }: Props) => {
 				return (
 					<div key={entryId} className={`${className || ""} p-1`}>
 						<div
-							className={`fileview-fragment flex items-center gap-2 text-white cursor-pointer ${
+							className={`fileview-fragment flex items-center gap-2 group text-white cursor-pointer ${
 								!entry.isDirectory && entry._id === activeFileId
 									? "active-file bg-slate-400 px-1 rounded-sm"
 									: ""
@@ -64,16 +74,29 @@ const FileView = ({ tree, className, activeFileId, onFileClick }: Props) => {
 									: onFileClick?.(entry._id as string)
 							}
 						>
-							<span className="fileview-fragment-classification">
-								<Icon
-									isDirectory={entry.isDirectory}
-									expanded={expanded[entryId]}
-									extension={extension}
-								/>
-							</span>
-							<span className="fileview-fragment-classification">
-								{entry.fileName || entry.path}
-							</span>
+							<div className="w-11/12 flex items-center gap-2">
+								<div className="fileview-fragment-classification">
+									<Icon
+										isDirectory={entry.isDirectory}
+										expanded={expanded[entryId]}
+										extension={extension}
+									/>
+								</div>
+								<div className="fileview-fragment-classification">
+									{entry.fileName || entry.path}
+								</div>
+							</div>
+							{entry.isDirectory && (
+								<div
+									onClick={(event) => {
+										event.stopPropagation();
+										onClickFileCreate?.(entry.path as string);
+									}}
+									className="w-1/12 text-sm text-gray-400 hidden group-hover:block hover:text-white"
+								>
+									<BsFileEarmarkPlusFill />
+								</div>
+							)}
 						</div>
 						{entry.isDirectory &&
 						entry.children?.length &&
@@ -83,6 +106,7 @@ const FileView = ({ tree, className, activeFileId, onFileClick }: Props) => {
 								className="ml-4"
 								activeFileId={activeFileId}
 								onFileClick={onFileClick}
+								onClickFileCreate={onClickFileCreate}
 							/>
 						) : (
 							""
