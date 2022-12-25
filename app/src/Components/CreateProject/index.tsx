@@ -7,8 +7,11 @@ import useToast from "../../hooks/useToast";
 import { createProject } from "../../API/Projects";
 
 import Modal from "../Reusables/Modal";
+
 import ProjectTemplates from "./ProjectTemplates";
 import EnterProjectInfo from "./EnterProjectInfo";
+
+import addProjectIdToCache from "./utils/addProjectIdToCache";
 
 const CreateProject = () => {
 	const setToast = useToast();
@@ -29,7 +32,10 @@ const CreateProject = () => {
 		if (error) return setToast({ type: "error", message: error?.message });
 
 		closeProjectDetailsModal();
-		navigateTo(`/project/${projectCreationResponse?.project?._id}`);
+
+		const projectId = projectCreationResponse?.project?._id;
+		navigateTo(`/project/${projectId}`);
+		addProjectIdToCache(projectId);
 		return setToast({
 			type: "success",
 			message: "Project created successfully.",
