@@ -20,7 +20,7 @@ interface CodeEditorProps {
 	code: string;
 	extension: string;
 	onChange: (editor: any, data: any, value: string) => any;
-	onSave?: (editor: CodemirrorEditorType) => any;
+	onSave: (editor: CodemirrorEditorType) => any;
 }
 
 const CodeEditor = (props: CodeEditorProps) => {
@@ -51,8 +51,8 @@ const CodeEditor = (props: CodeEditorProps) => {
 					tabSize: 4,
 					lineWrapping: true,
 					extraKeys: {
-						"Ctrl-S": props.onSave || (() => null),
-						"Cmd-S": props.onSave || (() => null),
+						"Ctrl-S": props.onSave,
+						"Cmd-S": props.onSave,
 					},
 				}}
 			/>

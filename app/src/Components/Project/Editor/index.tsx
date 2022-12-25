@@ -1,6 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { getProjectFileContent, getProjectFileList } from "../../../API/Files";
+
+import {
+	getProjectFileContent,
+	getProjectFileList,
+	updateProjectFile,
+} from "../../../API/Files";
 import { initializeProjectRCE } from "../../../API/RCE";
 
 import {
@@ -36,6 +41,7 @@ const ProjectEditor = () => {
 	const [activeFileId, setActiveFileId] = useState("");
 	const [activeFile, setActiveFile] = useState<FileFromBackend | null>(null);
 	const [code, setCode] = useState("");
+	const [codeEditingDisabled, setCodeEditingDisabled] = useState(false);
 
 	// Project Terminal Output
 	const [showAppTerminal, setShowAppTerminal] = useState(false);
@@ -149,6 +155,21 @@ const ProjectEditor = () => {
 		setActiveFileId(fileId);
 	};
 
+	const onFileSave = async () => {
+		if (!activeFileId || !activeFile || !projectId) return;
+
+		const newContent = code;
+
+		// Make API call to tell backend to update file.
+		setCodeEditingDisabled(true);
+		await updateProjectFile(projectId, {
+			path: activeFile?.path,
+			newContent,
+			operation: "update",
+		});
+		setCodeEditingDisabled(false);
+	};
+
 	return (
 		<div className="project-editor flex w-full h-screen">
 			<div className="project-editor-section sm:w-1/5 bg-slate-700 h-full">
@@ -162,9 +183,12 @@ const ProjectEditor = () => {
 				<CodeEditor
 					code={code}
 					onChange={(_, __, value) =>
-						projectAppInstanceURL ? setCode(value) : null
+						projectAppInstanceURL && !setCodeEditingDisabled
+							? setCode(value)
+							: null
 					}
 					extension={activeFile?.path?.split(".").pop() || ""}
+					onSave={onFileSave}
 				/>
 			</div>
 			<div className="project-editor-section sm:w-2/5">
