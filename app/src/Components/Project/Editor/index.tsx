@@ -227,13 +227,17 @@ const ProjectEditor = () => {
 
 		setCodeEditingDisabled(true);
 		const { error } = await createProjectFile(projectId, {
-			path: directoryToCreateDivIn + "/" + newFileName,
+			path:
+				directoryToCreateDivIn +
+				(directoryToCreateDivIn ? "/" : "") +
+				newFileName,
 			contents: "",
 		});
 		if (error) return toast({ type: "error", message: error.message });
 		// Refetch updated file list
 		await getFileListAndSetLastUpdatedFile();
 		setCodeEditingDisabled(false);
+		closeNewFileModal();
 	};
 
 	return (
@@ -257,6 +261,7 @@ const ProjectEditor = () => {
 					}
 					extension={activeFile?.path?.split(".").pop() || ""}
 					onSave={onFileSave}
+					key={activeFileId}
 				/>
 			</div>
 			<div className="project-editor-section sm:w-2/5">
