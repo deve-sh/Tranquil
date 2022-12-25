@@ -27,6 +27,7 @@ import ProjectTerminalOutput from "./ProjectTerminalOutput";
 import NewFileModal from "./NewFileModal";
 
 import useExpandDirsForActiveFile from "./hooks/useExpandDirsForActiveFile";
+import isDeletionProtectedFile from "./utils/deletionProtectedFiles";
 
 const ProjectEditor = () => {
 	const { projectId } = useParams();
@@ -188,6 +189,12 @@ const ProjectEditor = () => {
 
 		const file = fileList.find((file) => file._id === fileId);
 		if (!file) return;
+
+		if (isDeletionProtectedFile(file.path))
+			return toast({
+				message: "Protected file. Cannot be deleted.",
+				type: "error",
+			});
 
 		if (!window.confirm("Are you sure? This is an irreversible action."))
 			return;
