@@ -10,7 +10,13 @@ interface Props {
 	createFile: () => any;
 }
 
-const NewFileModal = ({ open, close, fileName, setFileName }: Props) => {
+const NewFileModal = ({
+	open,
+	close,
+	fileName,
+	setFileName,
+	createFile,
+}: Props) => {
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
 		event.persist();
 		setFileName(event.target.value);
@@ -18,6 +24,7 @@ const NewFileModal = ({ open, close, fileName, setFileName }: Props) => {
 
 	const onSubmit: React.FormEventHandler = (event) => {
 		event.preventDefault();
+		createFile();
 	};
 
 	return (

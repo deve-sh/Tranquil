@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "react-router-dom";
 
 import {
+	createProjectFile,
 	getProjectFileContent,
 	getProjectFileList,
 	updateProjectFile,
@@ -17,16 +18,20 @@ import {
 
 import type FileFromBackend from "../../../types/File";
 import createNestedFileStructure from "../../../utils/createNestedFileStructure";
+import useToast from "../../../hooks/useToast";
 
 import CodeEditor from "./CodeEditor";
 import FileView from "./FileView";
 import ProjectIframe from "./ProjectIframe";
 import ProjectTerminalOutput from "./ProjectTerminalOutput";
+import NewFileModal from "./NewFileModal";
 
 import useExpandDirsForActiveFile from "./hooks/useExpandDirsForActiveFile";
 
 const ProjectEditor = () => {
 	const { projectId } = useParams();
+
+	const toast = useToast();
 
 	// Project Execution Iframe
 	const iframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -132,6 +137,7 @@ const ProjectEditor = () => {
 
 	useEffect(() => {
 		if (activeFileId && projectId) {
+			setCode("");
 			getProjectFileContent(projectId, activeFileId).then(
 				({ data: contents }) =>
 					setCode(
@@ -176,6 +182,37 @@ const ProjectEditor = () => {
 			restartProjectAppServer(projectId);
 	};
 
+	// File Creation Mode
+	const [directoryToCreateDivIn, setDirectoryToCreateDivIn] = useState("");
+	const [newFileName, setNewFileName] = useState("");
+	const [showNewFileModal, setShowNewFileModal] = useState(false);
+
+	const onClickFileCreateInFileViewer = (dirName: string) => {
+		setNewFileName("");
+		setDirectoryToCreateDivIn(dirName);
+		setShowNewFileModal(true);
+	};
+	const closeNewFileModal = () => {
+		setDirectoryToCreateDivIn("");
+		setNewFileName("");
+		setShowNewFileModal(false);
+	};
+	const createNewFile = async () => {
+		if (!projectId) return;
+
+		if (!newFileName || newFileName.includes("/") || newFileName.includes("\\"))
+			return toast({ type: "error", message: "Invalid File Name" });
+
+		setCodeEditingDisabled(true);
+		await createProjectFile(projectId, {
+			path: directoryToCreateDivIn + "/" + newFileName,
+			contents: "",
+		});
+		// Refetch updated file list
+		await getFileListAndSetLastUpdatedFile();
+		setCodeEditingDisabled(false);
+	};
+
 	return (
 		<div className="project-editor flex w-full h-screen">
 			<div className="project-editor-section sm:w-1/5 bg-slate-700 h-full">
@@ -183,6 +220,7 @@ const ProjectEditor = () => {
 					tree={nestedFileTree}
 					activeFileId={activeFileId}
 					onFileClick={onFileClickFromViewer}
+					onClickFileCreate={onClickFileCreateInFileViewer}
 				/>
 			</div>
 			<div className="project-editor-section sm:w-2/5 h-full bg-editor text-white flex flex-col">
@@ -210,6 +248,13 @@ const ProjectEditor = () => {
 				logs={appTerminalLogs}
 				isOpen={showAppTerminal}
 				toggle={toggleProjectTerminal}
+			/>
+			<NewFileModal
+				open={showNewFileModal}
+				close={closeNewFileModal}
+				fileName={newFileName}
+				setFileName={setNewFileName}
+				createFile={createNewFile}
 			/>
 		</div>
 	);
