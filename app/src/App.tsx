@@ -6,6 +6,8 @@ import Toast from "./Components/Layout/Toast";
 // Socket
 import "./socket";
 
+const Footer = lazy(() => import("./Components/Layout/Footer"));
+
 const Homepage = lazy(() => import("./Components/Home"));
 const ProjectPage = lazy(() => import("./Components/Project/Editor"));
 
@@ -19,6 +21,7 @@ function App() {
 					element={
 						<Suspense fallback={<></>}>
 							<Homepage />
+							<Footer />
 						</Suspense>
 					}
 				/>
