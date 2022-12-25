@@ -30,7 +30,7 @@ module.exports.getFileContents = async (req, res) => {
 
 module.exports.createFile = async (req, res) => {
 	try {
-		const { path, contents } = req.body;
+		const { path, contents, isReadableContent = true } = req.body;
 		const { projectId } = req.params;
 
 		// Check if a file at the path already exists.
@@ -44,6 +44,7 @@ module.exports.createFile = async (req, res) => {
 			path,
 			contents,
 			projectId,
+			isReadableContent,
 		});
 		await fileToCreate.save();
 		res
@@ -80,6 +81,11 @@ module.exports.updateFile = async (req, res) => {
 		if (operation === "update") {
 			const fileToUpdate = await ProjectFile.findById(fileId);
 			if (fileToUpdate) {
+				if (!fileToUpdate.isReadableContent)
+					return res.status(400).json({
+						error:
+							"File is not editable. Please delete the file and upload a new one.",
+					});
 				fileToUpdate.contents = newContent || "";
 				fileToUpdate.path = path;
 				await fileToUpdate.save();
