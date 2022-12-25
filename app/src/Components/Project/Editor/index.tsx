@@ -30,6 +30,7 @@ import HiddenFileUploadInput from "./HiddenFileUploadInput";
 import useExpandDirsForActiveFile from "./hooks/useExpandDirsForActiveFile";
 import isDeletionProtectedFile from "./utils/deletionProtectedFiles";
 import BinaryContent from "./BinaryContent";
+import Instructions from "./Instructions";
 
 const ProjectEditor = () => {
 	const { projectId } = useParams();
@@ -295,6 +296,11 @@ const ProjectEditor = () => {
 		if (!error) fileUploadInputRef.current.value = ""; // Reset input value of file upload
 	};
 
+	// Usage Instructions and FAQs
+	const [showUsageInstructions, setShowUsageInstructions] = useState(false);
+	const toggleUsageInstructions = () =>
+		setShowUsageInstructions((show) => !show);
+
 	return (
 		<div className="project-editor flex w-full h-screen">
 			<div className="project-editor-section sm:w-1/5 bg-slate-700 h-full">
@@ -329,6 +335,7 @@ const ProjectEditor = () => {
 					projectId={projectId}
 					src={projectAppInstanceURL}
 					toggleTerminal={toggleProjectTerminal}
+					toggleUsageInstructions={toggleUsageInstructions}
 					onReady={(ref) => (iframeRef.current = ref)}
 					reloadIframe={reloadIframe}
 				/>
@@ -348,6 +355,10 @@ const ProjectEditor = () => {
 			<HiddenFileUploadInput
 				onChange={onFileToUploadChange}
 				ref={fileUploadInputRef}
+			/>
+			<Instructions
+				open={showUsageInstructions}
+				close={toggleUsageInstructions}
 			/>
 		</div>
 	);

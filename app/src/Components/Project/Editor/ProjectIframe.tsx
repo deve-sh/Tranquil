@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { TbRefresh } from "react-icons/tb";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { VscTerminalBash, VscDebugRestartFrame } from "react-icons/vsc";
+import { MdIntegrationInstructions } from "react-icons/md";
 
 import Button from "../../Reusables/Button";
 
@@ -11,6 +12,7 @@ interface Props {
 	projectId?: string;
 	src: string;
 	toggleTerminal?: () => any;
+	toggleUsageInstructions?: () => any;
 	onReady: (ref: HTMLIFrameElement) => any;
 	reloadIframe: () => any;
 }
@@ -19,6 +21,7 @@ const ProjectIframe = ({
 	projectId,
 	src = "",
 	toggleTerminal,
+	toggleUsageInstructions,
 	onReady,
 	reloadIframe,
 }: Props) => {
@@ -33,8 +36,15 @@ const ProjectIframe = ({
 	return (
 		<div className="project-editor-iframe-container w-full h-full flex flex-col">
 			<div className="bg-slate-800 text-white p-2 pr-4 flex w-full items-center">
-				<div className="addressbar w-10/12 rounded h-full min-h-full bg-slate-500" />
-				<div className="flex w-2/12 justify-end gap-2">
+				<div className="addressbar w-8/12 rounded h-full min-h-full bg-slate-500" />
+				<div className="flex w-4/12 justify-end gap-4">
+					<button
+						className="cursor-pointer border-none outline-none bg-transparent"
+						title="Usage Instructions"
+						onClick={toggleUsageInstructions}
+					>
+						<MdIntegrationInstructions />
+					</button>
 					<button
 						className="cursor-pointer border-none outline-none bg-transparent"
 						title="Restart App Server"
