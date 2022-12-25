@@ -6,7 +6,7 @@ import Toast from "./Components/Layout/Toast";
 // Socket
 import "./socket";
 
-const CreateProject = lazy(() => import("./Components/CreateProject"));
+const Homepage = lazy(() => import("./Components/Home"));
 const ProjectPage = lazy(() => import("./Components/Project/Editor"));
 
 function App() {
@@ -15,10 +15,10 @@ function App() {
 			<Toast />
 			<Routes>
 				<Route
-					path="/createproject"
+					path="/"
 					element={
 						<Suspense fallback={<></>}>
-							<CreateProject />
+							<Homepage />
 						</Suspense>
 					}
 				/>
@@ -28,12 +28,6 @@ function App() {
 						<Suspense fallback={<></>}>
 							<ProjectPage />
 						</Suspense>
-					}
-				/>
-				<Route
-					path="/dashboard"
-					element={
-						<Suspense fallback={<></>}>User Dashboard. Coming soon</Suspense>
 					}
 				/>
 			</Routes>

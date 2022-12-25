@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import type ProjectInfo from "./ProjectInfo.type";
+
+import useToast from "../../hooks/useToast";
+import { createProject } from "../../API/Projects";
+
+import Modal from "../Reusables/Modal";
 import ProjectTemplates from "./ProjectTemplates";
 import EnterProjectInfo from "./EnterProjectInfo";
-import ProjectInfo from "./ProjectInfo.type";
-import Modal from "../Reusables/Modal";
-import { createProject } from "../../API/Projects";
-import useToast from "../../hooks/useToast";
 
 const CreateProject = () => {
 	const setToast = useToast();
@@ -35,7 +37,7 @@ const CreateProject = () => {
 	};
 
 	return (
-		<div className="create-project-page">
+		<div className="create-project" id="createproject">
 			<ProjectTemplates
 				onSelect={(templateSelected) => setSelectedTemplate(templateSelected)}
 			/>

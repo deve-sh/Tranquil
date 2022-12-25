@@ -20,8 +20,8 @@ const ProjectTemplates = (props: Props) => {
 
 	return (
 		<Container className="py-4">
-			<h4 className="text-2xl font-medium text-slate-900 mb-4">
-				Select A Project Template
+			<h4 className="text-2xl text-slate-700 mb-4 text-center font-bold">
+				Get started with a project template
 			</h4>
 			<div className="project-templates flex justify-center items-center flex-wrap gap-8 p-4">
 				{templateList.map((template) => (

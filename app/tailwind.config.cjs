@@ -9,6 +9,7 @@ module.exports = {
 			white: colors.white,
 			gray: colors.gray,
 			slate: colors.slate,
+			emerald: colors.emerald,
 		},
 		colors: {
 			stone: colors.stone,

@@ -18,6 +18,10 @@ const Button = ({
 	<button
 		onClick={onClick}
 		className={`rounded-lg
+		flex
+		items-center
+		justify-center
+		gap-2
         ${variant === "contained" ? "bg-teal-700" : ""}
         ${variant !== "ghost" ? "border-2 border-teal-700" : ""}
         ${variant !== "contained" ? "text-teal-700" : "text-white"}
