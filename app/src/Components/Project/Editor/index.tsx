@@ -51,6 +51,7 @@ const ProjectEditor = () => {
 	const [activeFileId, setActiveFileId] = useState("");
 	const [activeFile, setActiveFile] = useState<FileFromBackend | null>(null);
 	const [code, setCode] = useState("");
+	const [activeFileIsUnsaved, setActiveFileIsUnsaved] = useState(false);
 	const [codeEditingDisabled, setCodeEditingDisabled] = useState(false);
 
 	// Project Terminal Output
@@ -160,10 +161,23 @@ const ProjectEditor = () => {
 	useExpandDirsForActiveFile(activeFileId, fileList);
 
 	const onFileClickFromViewer = (fileId: string) => {
+		if (
+			activeFileIsUnsaved &&
+			!window.confirm("There are unsaved changes to your file. Are you sure?")
+		)
+			return;
+
 		setActiveFile(
 			fileList.find((file) => file._id === fileId) as FileFromBackend
 		);
 		setActiveFileId(fileId);
+	};
+
+	const onCodeChange = (_: any, __: any, value: string) => {
+		if (projectAppInstanceURL && !codeEditingDisabled) {
+			setCode(value);
+			setActiveFileIsUnsaved(true);
+		}
 	};
 
 	const onFileSave = async () => {
@@ -173,12 +187,16 @@ const ProjectEditor = () => {
 
 		// Make API call to tell backend to update file.
 		setCodeEditingDisabled(true);
-		await updateProjectFile(projectId, activeFileId, {
+		const { error } = await updateProjectFile(projectId, activeFileId, {
 			path: activeFile?.path,
 			newContent,
 			operation: "update",
 		});
 		setCodeEditingDisabled(false);
+
+		if (error) return toast({ type: "error", message: error.message });
+
+		setActiveFileIsUnsaved(false);
 
 		// If the file updated is package.json, that means app name has changed or dependencies have changed.
 		// Send a restart signal to the server.
@@ -319,11 +337,7 @@ const ProjectEditor = () => {
 				) : (
 					<CodeEditor
 						code={code}
-						onChange={(_, __, value) =>
-							projectAppInstanceURL && !codeEditingDisabled
-								? setCode(value)
-								: null
-						}
+						onChange={onCodeChange}
 						extension={activeFile?.path?.split(".").pop() || ""}
 						onSave={onFileSave}
 						key={activeFileId}
