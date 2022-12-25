@@ -85,7 +85,7 @@ const createNestedFileStructure = (fileList: FileFromBackend[]) => {
 	return [
 		{
 			fileName: "root",
-			path: "root",
+			path: "",
 			_id: "root",
 			isDirectory: true,
 			children: tree,
