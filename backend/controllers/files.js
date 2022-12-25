@@ -17,9 +17,12 @@ module.exports.getProjectFileList = async (req, res) => {
 module.exports.getFileContents = async (req, res) => {
 	try {
 		const { fileId } = req.params;
-		const file = await ProjectFile.findById(fileId).select("contents").lean();
+		const file = await ProjectFile.findById(fileId)
+			.select("contents isReadableContent")
+			.lean();
 		if (!file) return res.sendStatus(404);
 		res.setHeader("content-type", "text/plain");
+		if (file.isReadableContent === false) return res.send(""); // No need to send over large binary data if it's not going to be read anyway.
 		return res.send(file.contents);
 	} catch (err) {
 		return res
