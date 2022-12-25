@@ -33,6 +33,10 @@ const Instructions = (props: Props) => {
 						dependencies.
 					</li>
 					<li>Support for environment variables is coming soon.</li>
+					<li>
+						Support for having multiple files opened at the same time is coming
+						soon.
+					</li>
 				</ul>
 			</div>
 		</Modal>
