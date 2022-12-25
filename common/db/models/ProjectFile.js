@@ -18,7 +18,7 @@ const ProjectFile = new Schema(
 		isReadableContent: {
 			// Defines whether the content of a file can be read and edited by the user.
 			// Unlike an image or video type where the user isn't allowed to see, we'll show "binary data" message in such a case.
-			type: boolean,
+			type: Boolean,
 			default: true,
 		},
 	},
