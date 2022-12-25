@@ -10,7 +10,7 @@ export const getProjectFileList = async (projectId: string) => {
 	try {
 		const response = await request(getProjectFileListEndpoint(projectId));
 		return { error: null, data: response };
-	} catch (error) {
+	} catch (error: any | unknown | Error) {
 		return { error, data: null };
 	}
 };
@@ -24,7 +24,7 @@ export const getProjectFileContent = async (
 			getProjectFileContentsEndpoint(projectId, fileId)
 		);
 		return { error: null, data: response };
-	} catch (error) {
+	} catch (error: any | unknown | Error) {
 		return { error, data: null };
 	}
 };
@@ -39,7 +39,7 @@ export const createProjectFile = async (
 			data: options,
 		});
 		return { error: null, data: response };
-	} catch (error) {
+	} catch (error: any | unknown | Error) {
 		return { error, data: null };
 	}
 };
@@ -54,7 +54,7 @@ export const updateProjectFile = async (
 			data: options,
 		});
 		return { error: null, data: response };
-	} catch (error) {
+	} catch (error: any | unknown | Error) {
 		return { error, data: null };
 	}
 };
