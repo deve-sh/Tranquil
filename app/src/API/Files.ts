@@ -32,7 +32,7 @@ export const getProjectFileContent = async (
 
 export const createProjectFile = async (
 	projectId: string,
-	options: { path: string; contents: string }
+	options: { path: string; contents: string; isReadableContent?: boolean }
 ) => {
 	try {
 		const response = await request(createProjectFileEndpoint(projectId), {

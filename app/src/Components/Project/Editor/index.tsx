@@ -25,6 +25,7 @@ import FileView from "./FileView";
 import ProjectIframe from "./ProjectIframe";
 import ProjectTerminalOutput from "./ProjectTerminalOutput";
 import NewFileModal from "./NewFileModal";
+import HiddenFileUploadInput from "./HiddenFileUploadInput";
 
 import useExpandDirsForActiveFile from "./hooks/useExpandDirsForActiveFile";
 import isDeletionProtectedFile from "./utils/deletionProtectedFiles";
@@ -212,39 +213,85 @@ const ProjectEditor = () => {
 	};
 
 	// File Creation Mode
-	const [directoryToCreateDivIn, setDirectoryToCreateDivIn] = useState("");
+	const [directoryToCreateNewFileIn, setDirectoryToCreateNewFileIn] =
+		useState("");
 	const [newFileName, setNewFileName] = useState("");
 	const [showNewFileModal, setShowNewFileModal] = useState(false);
 
-	const onClickFileCreateInFileViewer = (dirName: string) => {
-		setNewFileName("");
-		setDirectoryToCreateDivIn(dirName);
-		setShowNewFileModal(true);
-	};
-	const closeNewFileModal = () => {
-		setDirectoryToCreateDivIn("");
-		setNewFileName("");
-		setShowNewFileModal(false);
-	};
-	const createNewFile = async () => {
-		if (!projectId) return;
-
-		if (!newFileName || newFileName.includes("/") || newFileName.includes("\\"))
-			return toast({ type: "error", message: "Invalid File Name" });
-
+	const createNewFile = async (
+		directory: string,
+		fileName: string,
+		contents: string = "",
+		isReadableContent: boolean = true
+	) => {
+		if (!projectId) return {};
 		setCodeEditingDisabled(true);
 		const { error } = await createProjectFile(projectId, {
-			path:
-				directoryToCreateDivIn +
-				(directoryToCreateDivIn ? "/" : "") +
-				newFileName,
-			contents: "",
+			path: directory + (directory ? "/" : "") + fileName,
+			contents,
+			isReadableContent,
 		});
-		if (error) return toast({ type: "error", message: error.message });
+		if (error) {
+			toast({ type: "error", message: error.message });
+			return { error };
+		}
 		// Refetch updated file list
 		await getFileListAndSetLastUpdatedFile();
 		setCodeEditingDisabled(false);
-		closeNewFileModal();
+		return {};
+	};
+
+	const onClickFileCreateInFileViewer = (dirName: string) => {
+		setNewFileName("");
+		setDirectoryToCreateNewFileIn(dirName);
+		setShowNewFileModal(true);
+	};
+	const closeNewFileModal = () => {
+		setDirectoryToCreateNewFileIn("");
+		setNewFileName("");
+		setShowNewFileModal(false);
+	};
+
+	const onClickFileCreate = async () => {
+		const { error } = await createNewFile(
+			directoryToCreateNewFileIn,
+			newFileName
+		);
+		if (!error) closeNewFileModal();
+	};
+
+	// File Upload mode
+	const fileUploadInputRef = useRef<HTMLInputElement | null>(null);
+	const [directoryToUploadFileTo, setDirectoryToUploadFileTo] = useState("");
+	const onClickFileUpload = (dirName: string) => {
+		setDirectoryToUploadFileTo(dirName);
+		// Invoke File Upload input
+		if (fileUploadInputRef.current) fileUploadInputRef.current.click();
+	};
+	const onFileToUploadChange = async (file?: File, rawContents?: string) => {
+		if (
+			!directoryToUploadFileTo ||
+			!projectId ||
+			!file ||
+			!rawContents ||
+			!fileUploadInputRef.current
+		)
+			return;
+
+		const isReadableContent =
+			file.type.startsWith("text/") ||
+			file.type.includes("/json") ||
+			file.type === "" ||
+			["ts", "tsx"].includes(file.name.split(".").pop() as string);
+
+		const { error } = await createNewFile(
+			directoryToUploadFileTo,
+			file.name,
+			rawContents,
+			isReadableContent
+		);
+
+		if (!error) fileUploadInputRef.current.value = ""; // Reset input value of file upload
 	};
 
 	return (
@@ -256,6 +303,7 @@ const ProjectEditor = () => {
 					onFileClick={onFileClickFromViewer}
 					onClickFileCreate={onClickFileCreateInFileViewer}
 					onClickFileDelete={deleteFile}
+					onClickFileUpload={onClickFileUpload}
 				/>
 			</div>
 			<div className="project-editor-section sm:w-2/5 h-full bg-editor text-white flex flex-col">
@@ -290,7 +338,11 @@ const ProjectEditor = () => {
 				close={closeNewFileModal}
 				fileName={newFileName}
 				setFileName={setNewFileName}
-				createFile={createNewFile}
+				createFile={onClickFileCreate}
+			/>
+			<HiddenFileUploadInput
+				onChange={onFileToUploadChange}
+				ref={fileUploadInputRef}
 			/>
 		</div>
 	);

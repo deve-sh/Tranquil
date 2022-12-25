@@ -9,7 +9,7 @@ import {
 } from "react-icons/si";
 import { MdDelete } from "react-icons/md";
 import { VscJson } from "react-icons/vsc";
-import { BsFileEarmarkPlusFill } from "react-icons/bs";
+import { BsFileEarmarkPlusFill, BsUpload } from "react-icons/bs";
 
 import useExpandedDirectories from "../../../stores/ProjectEditor/expandedDirectories";
 
@@ -27,6 +27,7 @@ interface Props {
 	activeFileId?: string;
 	onFileClick?: (fileId: string) => any;
 	onClickFileCreate?: (dirName: string) => any;
+	onClickFileUpload?: (dirName: string) => any;
 	onClickFileDelete?: (fileId: string) => any;
 }
 
@@ -52,6 +53,7 @@ const FileView = ({
 	onFileClick,
 	onClickFileCreate,
 	onClickFileDelete,
+	onClickFileUpload,
 }: Props) => {
 	const expanded = useExpandedDirectories((state) => state.expanded);
 	const setExpanded = useExpandedDirectories((state) => state.setExpanded);
@@ -77,7 +79,7 @@ const FileView = ({
 									: onFileClick?.(entry._id as string)
 							}
 						>
-							<div className="w-11/12 flex items-center gap-2">
+							<div className="w-9/12 flex items-center gap-2">
 								<div className="fileview-fragment-classification">
 									<Icon
 										isDirectory={entry.isDirectory}
@@ -89,20 +91,33 @@ const FileView = ({
 									{entry.fileName || entry.path}
 								</div>
 							</div>
-							<div className="w-1/12 text-sm text-gray-400 hidden group-hover:block hover:text-white">
+							<div className="w-3/12 text-sm text-gray-400 hidden group-hover:flex items-center gap-1 justify-end">
 								{entry.isDirectory ? (
-									<BsFileEarmarkPlusFill
-										onClick={(event) => {
-											event.stopPropagation();
-											onClickFileCreate?.(entry.path as string);
-										}}
-									/>
+									<>
+										<BsFileEarmarkPlusFill
+											onClick={(event) => {
+												event.stopPropagation();
+												onClickFileCreate?.(entry.path as string);
+											}}
+											title="Add File"
+											className="hover:text-white"
+										/>
+										<BsUpload
+											onClick={(event) => {
+												event.stopPropagation();
+												onClickFileUpload?.(entry.path as string);
+											}}
+											title="Upload File"
+											className="hover:text-white"
+										/>
+									</>
 								) : (
 									<MdDelete
 										onClick={(event) => {
 											event.stopPropagation();
 											onClickFileDelete?.(entry._id as string);
 										}}
+										className="hover:text-white"
 									/>
 								)}
 							</div>
@@ -117,6 +132,7 @@ const FileView = ({
 								onFileClick={onFileClick}
 								onClickFileCreate={onClickFileCreate}
 								onClickFileDelete={onClickFileDelete}
+								onClickFileUpload={onClickFileUpload}
 							/>
 						) : (
 							""
