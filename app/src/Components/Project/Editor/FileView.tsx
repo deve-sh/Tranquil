@@ -7,6 +7,7 @@ import {
 	SiMarkdown,
 	SiReact,
 } from "react-icons/si";
+import { MdDelete } from "react-icons/md";
 import { VscJson } from "react-icons/vsc";
 import { BsFileEarmarkPlusFill } from "react-icons/bs";
 
@@ -26,6 +27,7 @@ interface Props {
 	activeFileId?: string;
 	onFileClick?: (fileId: string) => any;
 	onClickFileCreate?: (dirName: string) => any;
+	onClickFileDelete?: (fileId: string) => any;
 }
 
 const Icon = ({ isDirectory = false, expanded = false, extension = "" }) => {
@@ -49,6 +51,7 @@ const FileView = ({
 	activeFileId,
 	onFileClick,
 	onClickFileCreate,
+	onClickFileDelete,
 }: Props) => {
 	const expanded = useExpandedDirectories((state) => state.expanded);
 	const setExpanded = useExpandedDirectories((state) => state.setExpanded);
@@ -86,17 +89,23 @@ const FileView = ({
 									{entry.fileName || entry.path}
 								</div>
 							</div>
-							{entry.isDirectory && (
-								<div
-									onClick={(event) => {
-										event.stopPropagation();
-										onClickFileCreate?.(entry.path as string);
-									}}
-									className="w-1/12 text-sm text-gray-400 hidden group-hover:block hover:text-white"
-								>
-									<BsFileEarmarkPlusFill />
-								</div>
-							)}
+							<div className="w-1/12 text-sm text-gray-400 hidden group-hover:block hover:text-white">
+								{entry.isDirectory ? (
+									<BsFileEarmarkPlusFill
+										onClick={(event) => {
+											event.stopPropagation();
+											onClickFileCreate?.(entry.path as string);
+										}}
+									/>
+								) : (
+									<MdDelete
+										onClick={(event) => {
+											event.stopPropagation();
+											onClickFileDelete?.(entry._id as string);
+										}}
+									/>
+								)}
+							</div>
 						</div>
 						{entry.isDirectory &&
 						entry.children?.length &&
