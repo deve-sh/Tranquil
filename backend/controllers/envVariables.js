@@ -59,7 +59,10 @@ module.exports.updateEnvironmentVariable = async (req, res) => {
 				error: "Invalid or missing value for project environment variable.",
 			});
 
-		const envVariable = await EnvironmentVariable.findById(variableId);
+		const envVariable = await EnvironmentVariable.findOne({
+			projectId,
+			_id: variableId,
+		});
 		if (!envVariable || envVariable.projectId !== projectId)
 			return res.status(404).json({
 				error: "An environment variable with that key does not exist.",
@@ -80,8 +83,11 @@ module.exports.deleteEnvironmentVariable = async (req, res) => {
 	try {
 		const { projectId, variableId } = req.params;
 
-		const envVariable = await EnvironmentVariable.findById(variableId);
-		if (!envVariable || envVariable.projectId !== projectId)
+		const envVariable = await EnvironmentVariable.findOne({
+			projectId,
+			_id: variableId,
+		});
+		if (!envVariable)
 			return res.status(404).json({
 				error: "An environment variable with that key does not exist.",
 			});
