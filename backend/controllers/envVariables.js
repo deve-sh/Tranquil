@@ -40,7 +40,9 @@ module.exports.getProjectEnvironmentVariables = async (req, res) => {
 
 		const envVariables = await EnvironmentVariable.find({
 			projectId,
-		});
+		})
+			.limit(100)
+			.select("-__v -value");
 
 		return res.status(200).json({ variables: envVariables });
 	} catch (err) {
