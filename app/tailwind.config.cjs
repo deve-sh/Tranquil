@@ -10,6 +10,7 @@ module.exports = {
 			gray: colors.gray,
 			slate: colors.slate,
 			emerald: colors.emerald,
+			red: colors.red,
 		},
 		colors: {
 			stone: colors.stone,

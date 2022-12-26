@@ -26,11 +26,12 @@ import ProjectIframe from "./ProjectIframe";
 import ProjectTerminalOutput from "./ProjectTerminalOutput";
 import NewFileModal from "./NewFileModal";
 import HiddenFileUploadInput from "./HiddenFileUploadInput";
+import BinaryContent from "./BinaryContent";
+import Instructions from "./Instructions";
+import EnvironmentVariables from "./EnvironmentVariables";
 
 import useExpandDirsForActiveFile from "./hooks/useExpandDirsForActiveFile";
 import isDeletionProtectedFile from "./utils/deletionProtectedFiles";
-import BinaryContent from "./BinaryContent";
-import Instructions from "./Instructions";
 
 const ProjectEditor = () => {
 	const { projectId } = useParams();
@@ -319,6 +320,12 @@ const ProjectEditor = () => {
 	const toggleUsageInstructions = () =>
 		setShowUsageInstructions((show) => !show);
 
+	// Environment Variables
+	const [showEnvironmentVariablesModal, setShowEnvironmentVariablesModel] =
+		useState(false);
+	const toggleEnvironmentVariables = () =>
+		setShowEnvironmentVariablesModel((show) => !show);
+
 	return (
 		<div className="project-editor flex w-full h-screen">
 			<div className="project-editor-section sm:w-1/5 bg-slate-700 h-full">
@@ -350,6 +357,7 @@ const ProjectEditor = () => {
 					src={projectAppInstanceURL}
 					toggleTerminal={toggleProjectTerminal}
 					toggleUsageInstructions={toggleUsageInstructions}
+					toggleEnvironmentVariables={toggleEnvironmentVariables}
 					onReady={(ref) => (iframeRef.current = ref)}
 					reloadIframe={reloadIframe}
 				/>
@@ -373,6 +381,10 @@ const ProjectEditor = () => {
 			<Instructions
 				open={showUsageInstructions}
 				close={toggleUsageInstructions}
+			/>
+			<EnvironmentVariables
+				open={showEnvironmentVariablesModal}
+				close={toggleEnvironmentVariables}
 			/>
 		</div>
 	);

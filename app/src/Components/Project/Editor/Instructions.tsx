@@ -32,7 +32,6 @@ const Instructions = (props: Props) => {
 						save. The server will auto restart and install the added
 						dependencies.
 					</li>
-					<li>Support for environment variables is coming soon.</li>
 					<li>
 						Support for having multiple files opened at the same time is coming
 						soon.

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { TbRefresh } from "react-icons/tb";
+import { TbRefresh, TbVariable } from "react-icons/tb";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { VscTerminalBash, VscDebugRestartFrame } from "react-icons/vsc";
 import { MdIntegrationInstructions } from "react-icons/md";
@@ -13,6 +13,7 @@ interface Props {
 	src: string;
 	toggleTerminal?: () => any;
 	toggleUsageInstructions?: () => any;
+	toggleEnvironmentVariables?: () => any;
 	onReady: (ref: HTMLIFrameElement) => any;
 	reloadIframe: () => any;
 }
@@ -22,6 +23,7 @@ const ProjectIframe = ({
 	src = "",
 	toggleTerminal,
 	toggleUsageInstructions,
+	toggleEnvironmentVariables,
 	onReady,
 	reloadIframe,
 }: Props) => {
@@ -36,8 +38,15 @@ const ProjectIframe = ({
 	return (
 		<div className="project-editor-iframe-container w-full h-full flex flex-col">
 			<div className="bg-slate-800 text-white p-2 pr-4 flex w-full items-center">
-				<div className="addressbar w-8/12 rounded h-full min-h-full bg-slate-500" />
-				<div className="flex w-4/12 justify-end gap-4">
+				<div className="addressbar w-6/12 rounded h-full min-h-full bg-slate-500" />
+				<div className="flex w-3/12 md:w-6/12 justify-end gap-4">
+					<button
+						className="cursor-pointer border-none outline-none bg-transparent"
+						title="Environment Variables"
+						onClick={toggleEnvironmentVariables}
+					>
+						<TbVariable />
+					</button>
 					<button
 						className="cursor-pointer border-none outline-none bg-transparent"
 						title="Usage Instructions"
