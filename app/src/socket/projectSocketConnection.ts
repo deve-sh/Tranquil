@@ -7,6 +7,8 @@ export const disconnectProjectSocket = (projectId: string) =>
 	socket.emit("stop-listening-to-project", { projectId });
 
 const projectSocketEventList = [
+	"project-socket-room-joined",
+	"project-socket-room-rejected",
 	"project-initialization-update",
 	"project-shut-down",
 	"broadcast-to-project",

@@ -27,6 +27,7 @@ import ProjectTerminalOutput from "./ProjectTerminalOutput";
 import NewFileModal from "./NewFileModal";
 import HiddenFileUploadInput from "./HiddenFileUploadInput";
 import BinaryContent from "./BinaryContent";
+import ProjectRunningOnDifferentDevice from "./ProjectRunningOnDifferentDevice";
 import Instructions from "./Instructions";
 import EnvironmentVariables from "./EnvironmentVariables";
 
@@ -37,6 +38,11 @@ const ProjectEditor = () => {
 	const { projectId } = useParams();
 
 	const toast = useToast();
+
+	// This is used when there is more than one instance of the project running on the same or different devices.
+	// We can obviously have real-time editing and previews, but it's not a feature that's available right now.
+	const [projectRunningOnDifferentDevice, setProjectRunningOnDifferentDevice] =
+		useState(false);
 
 	// Project Execution Iframe
 	const iframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -62,6 +68,14 @@ const ProjectEditor = () => {
 
 	const onProjectSocketEvent = useCallback(
 		(eventName: string, eventPayload: Record<string, any>) => {
+			if (eventName === "project-socket-room-rejected")
+				setProjectRunningOnDifferentDevice(true);
+
+			if (eventName === "project-socket-room-joined")
+				setProjectRunningOnDifferentDevice(false);
+
+			if (!eventPayload) return;
+
 			// Process instance up event
 			if (
 				eventPayload.step === "project-initialization-completed" &&
@@ -123,15 +137,19 @@ const ProjectEditor = () => {
 	}, [projectId]);
 
 	useEffect(() => {
+		// Send an initialization API Call for the project.
+		if (!projectRunningOnDifferentDevice) {
+			// initializeProjectRCE(projectId).then(({ data: response }) => {
+			// 	if (response.publicURL) setProjectAppInstanceURL(response.publicURL);
+			// });
+		}
+	}, [projectId, projectRunningOnDifferentDevice]);
+
+	useEffect(() => {
 		if (projectId) {
 			// Initialize socket connection to project room.
 			initializeProjectSocket(projectId);
 			setupProjectEventListeners(onProjectSocketEvent);
-
-			// Send an initialization API Call for the project.
-			// initializeProjectRCE(projectId).then(({ data: response }) => {
-			// 	if (response.publicURL) setProjectAppInstanceURL(response.publicURL);
-			// });
 
 			getFileListAndSetLastUpdatedFile();
 
@@ -339,7 +357,9 @@ const ProjectEditor = () => {
 				/>
 			</div>
 			<div className="project-editor-section sm:w-2/5 h-full bg-editor text-white flex flex-col">
-				{activeFile?.isReadableContent === false ? (
+				{projectRunningOnDifferentDevice ? (
+					<ProjectRunningOnDifferentDevice />
+				) : activeFile?.isReadableContent === false ? (
 					<BinaryContent />
 				) : (
 					<CodeEditor
