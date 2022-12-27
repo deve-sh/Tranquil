@@ -8,6 +8,8 @@ const {
 	PROJECT_APP_RUNNER_SOCKET,
 	STOP_LISTENING_TO_PROJECT,
 	PROJECT_INSTANCE_STATES,
+	PROJECT_SOCKET_ROOM_JOINED,
+	PROJECT_SOCKET_ROOM_REJECTED,
 } = require("../../common/socketTypes");
 
 const getProjectSocketRoomId = require("./utils/getProjectSocketRoomId");
@@ -18,11 +20,30 @@ const socketServer = socketIO(expressServer, {
 });
 
 socketServer.on("connection", (client) => {
-	client.on(LISTEN_TO_PROJECT, (event) => {
+	client.on(LISTEN_TO_PROJECT, async (event) => {
 		if (!event || !event.projectId) return;
+
+		const roomId = getProjectSocketRoomId(event.projectId);
+
+		// Get how many sockets are left in the room.
+		const socketsInRoom = await socketServer
+			.in(getProjectSocketRoomId(roomId))
+			.fetchSockets();
+
+		// Check if client is already connected.
+		const clientAlreadyConnectedToRoom =
+			socketsInRoom.find((socket) => socket.id === client.id) || false;
+
+		if (clientAlreadyConnectedToRoom)
+			return client.join(getProjectSocketRoomId(roomId)); // Join the socket just in case.
+
+		// If another socket connection is already present in the project, reject the connection.
+		if (socketsInRoom.length) return client.emit(PROJECT_SOCKET_ROOM_REJECTED);
+
 		// Make the device socket connection join a room specific to this project id.
 		// This will be used to broadcast project specific logs and updates in real-time
-		client.join(getProjectSocketRoomId(event.projectId));
+		client.join(getProjectSocketRoomId(roomId));
+		client.emit(PROJECT_SOCKET_ROOM_JOINED);
 	});
 
 	client.on(STOP_LISTENING_TO_PROJECT, (event) => {
