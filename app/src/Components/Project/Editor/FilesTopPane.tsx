@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { MdClose } from "react-icons/md";
 
 import useOpenedFiles from "../../../stores/ProjectEditor/openedFiles";
@@ -21,9 +22,9 @@ const FilesTopPane = ({ files, activeFileId, onFileClick }: Props) => {
 	return (
 		<div className="project-editor-files-top-pane overflow-x-auto w-full h-8 bg-slate-800 pl-2 flex border-r-2 border-slate-700">
 			{Object.keys(openedFiles).map((fileId) => {
-				if (!openedFiles[fileId]) return <></>;
+				if (!openedFiles[fileId]) return <Fragment key={fileId} />;
 				const fileInList = files.find((file) => file._id === fileId);
-				if (!fileInList) return <></>;
+				if (!fileInList) return <Fragment key={fileId} />;
 
 				return (
 					<div

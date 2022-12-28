@@ -3,7 +3,7 @@ const projectControllers = require("../controllers/projects");
 
 const projectsRouter = Router();
 
-projectsRouter.post("/", projectControllers.getProjectsByIDs);
+projectsRouter.post("/list", projectControllers.getProjectsByIDs);
 projectsRouter.get("/:projectId", projectControllers.getProjectInfo);
 projectsRouter.post("/", projectControllers.createProject);
 projectsRouter.put("/:projectId", projectControllers.updateProject);
