@@ -151,10 +151,10 @@ const ProjectEditor = () => {
 
 	useEffect(() => {
 		// Send an initialization API Call for the project.
-		if (!projectRunningOnDifferentDevice) {
-			// initializeProjectRCE(projectId).then(({ data: response }) => {
-			// 	if (response.publicURL) setProjectAppInstanceURL(response.publicURL);
-			// });
+		if (!projectRunningOnDifferentDevice && projectId) {
+			initializeProjectRCE(projectId).then(({ data: response }) => {
+				if (response.publicURL) setProjectAppInstanceURL(response.publicURL);
+			});
 		}
 	}, [projectId, projectRunningOnDifferentDevice]);
 

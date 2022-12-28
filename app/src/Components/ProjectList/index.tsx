@@ -18,7 +18,7 @@ const Project = ({ project }: { project: ProjectFromBackend }) => (
 			src={getTemplateInfoFromId(project.template)?.image}
 			className="rounded-lg w-[3.5rem] h-[3.5rem] object-cover"
 		/>
-		<div className="overflow-hidden text-ellipsis w-[10rem] w-[10rem] line-clamp-2">
+		<div className="overflow-hidden text-ellipsis w-[10rem] line-clamp-2">
 			{project.projectName}
 		</div>
 	</Link>
