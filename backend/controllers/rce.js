@@ -172,6 +172,13 @@ module.exports.initializeProject = async (req, res) => {
 				error: errorCreatingInstance.message,
 			});
 
+		// Save this project's status in DB
+		newProjectRunningDoc.publicIP = instance.PublicIpAddress;
+		newProjectRunningDoc.publicURL = instance.PublicDnsName;
+		newProjectRunningDoc.machineId = instance.InstanceId;
+		newProjectRunningDoc.instanceMetaData = instance;
+		await newProjectRunningDoc.save();
+
 		sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
 			step: "instance-creation-successful",
 		});
@@ -201,11 +208,7 @@ module.exports.initializeProject = async (req, res) => {
 			step: "app-setup-succeeded",
 		});
 
-		// Save this project's status in DB
-		newProjectRunningDoc.publicIP = instance.PublicIpAddress;
-		newProjectRunningDoc.publicURL = instance.PublicDnsName;
-		newProjectRunningDoc.machineId = instance.InstanceId;
-		newProjectRunningDoc.instanceMetaData = instance;
+		newProjectRunningDoc.status = "live";
 		await newProjectRunningDoc.save();
 
 		return sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {

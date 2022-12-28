@@ -11,10 +11,7 @@ const startAppOnInstance = async (projectId, template, instance) => {
 		if (templateInfo.deprecated)
 			return { error: new Error("Project template no longer supported.") };
 
-		const {
-			PROJECT_INIT_UPDATE,
-			PROJECT_INSTANCE_STATES,
-		} = require("../../../common/socketTypes");
+		const { PROJECT_INIT_UPDATE } = require("../../../common/socketTypes");
 		const { NodeSSH } = require("node-ssh");
 		const fse = require("fs-extra");
 
@@ -52,7 +49,10 @@ const startAppOnInstance = async (projectId, template, instance) => {
 		const fileCreationPromises = [];
 		for (const file of projectFiles) {
 			// Create these project files on the server temporarily
-			const fileTempPath = "/temp/" + projectId + file.path;
+			const fileTempPath = path.resolve(
+				"../temp/" + projectId + "/",
+				file.path
+			);
 			const fileOnRunnerServerMatchingPath =
 				"repo/app-runner/project-app/" + file.path;
 

@@ -26,23 +26,20 @@ socketServer.on("connection", (client) => {
 		const roomId = getProjectSocketRoomId(event.projectId);
 
 		// Get how many sockets are left in the room.
-		const socketsInRoom = await socketServer
-			.in(getProjectSocketRoomId(roomId))
-			.fetchSockets();
+		const socketsInRoom = await socketServer.in(roomId).fetchSockets();
 
 		// Check if client is already connected.
 		const clientAlreadyConnectedToRoom =
 			socketsInRoom.find((socket) => socket.id === client.id) || false;
 
-		if (clientAlreadyConnectedToRoom)
-			return client.join(getProjectSocketRoomId(roomId)); // Join the socket just in case.
+		if (clientAlreadyConnectedToRoom) return client.join(roomId); // Join the socket just in case.
 
 		// If another socket connection is already present in the project, reject the connection.
 		if (socketsInRoom.length) return client.emit(PROJECT_SOCKET_ROOM_REJECTED);
 
 		// Make the device socket connection join a room specific to this project id.
 		// This will be used to broadcast project specific logs and updates in real-time
-		client.join(getProjectSocketRoomId(roomId));
+		client.join(roomId);
 		client.emit(PROJECT_SOCKET_ROOM_JOINED);
 	});
 

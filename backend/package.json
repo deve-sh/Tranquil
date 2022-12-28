@@ -5,7 +5,7 @@
 	"main": "index.js",
 	"scripts": {
 		"start": "node ./server/index.js",
-		"dev": "nodemon ./server/index.js --ignore \"**/running-projects/**\""
+		"dev": "nodemon ./server/index.js --ignore \"**/running-projects/**\" --ignore \"**/temp/**\""
 	},
 	"keywords": [],
 	"author": "",
