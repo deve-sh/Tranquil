@@ -6,9 +6,10 @@ import FileFromBackend from "../../../types/File";
 interface Props {
 	files: FileFromBackend[];
 	activeFileId: string;
+	onFileClick: (fileId: string) => any;
 }
 
-const FilesTopPane = ({ files, activeFileId }: Props) => {
+const FilesTopPane = ({ files, activeFileId, onFileClick }: Props) => {
 	const openedFiles = useOpenedFiles((state) => state.opened);
 	const setOpened = useOpenedFiles((state) => state.setOpened);
 
@@ -30,12 +31,16 @@ const FilesTopPane = ({ files, activeFileId }: Props) => {
 						className={`text-ellipsis flex items-center overflow-hidden w-fit transition-all py-2 px-4 text-xs text-white cursor-pointer group ${
 							activeFileId === fileId ? "bg-editor" : ""
 						}`}
+						onClick={() => onFileClick(fileId)}
 					>
 						{fileInList.fileName}
 						{fileId !== activeFileId && (
 							<span
 								className="w-0 group-hover:w-fit overflow-hidden cursor-pointer group-hover:ml-3"
-								onClick={() => closeOpenedFile(fileId)}
+								onClick={(e) => {
+									e.stopPropagation();
+									closeOpenedFile(fileId);
+								}}
 							>
 								<MdClose />
 							</span>

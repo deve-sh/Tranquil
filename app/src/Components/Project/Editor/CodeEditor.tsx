@@ -25,6 +25,7 @@ interface CodeEditorProps {
 	onSave: (editor: CodemirrorEditorType) => any;
 	fileList: FileFromBackend[];
 	activeFileId: string;
+	onClickFileFromTopPane: (fileId: string) => any;
 }
 
 const CodeEditor = (props: CodeEditorProps) => {
@@ -41,7 +42,11 @@ const CodeEditor = (props: CodeEditorProps) => {
 
 	return (
 		<div className="h-full relative">
-			<FilesTopPane files={props.fileList} activeFileId={props.activeFileId} />
+			<FilesTopPane
+				files={props.fileList}
+				activeFileId={props.activeFileId}
+				onFileClick={props.onClickFileFromTopPane}
+			/>
 			<CodeMirror
 				value={props.code || ""}
 				onBeforeChange={props.onChange}

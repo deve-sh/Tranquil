@@ -384,6 +384,7 @@ const ProjectEditor = () => {
 						onSave={onFileSave}
 						activeFileId={activeFileId}
 						fileList={fileList}
+						onClickFileFromTopPane={onFileClickFromViewer}
 					/>
 				)}
 			</div>
