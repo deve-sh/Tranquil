@@ -10,7 +10,7 @@ export const useExpandedDirectories = create<{
 	},
 	setExpanded: (key, expanded) =>
 		set((state) => ({ expanded: { ...state.expanded, [key]: expanded } })),
-	resetExpanded: () => set({ expanded: {} }),
+	resetExpanded: () => set({ expanded: { root: true } }),
 }));
 
 export default useExpandedDirectories;
