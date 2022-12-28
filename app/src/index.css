@@ -5,3 +5,25 @@
 body {
 	font-family: "Inter", sans-serif;
 }
+
+.project-editor-files-top-pane::-webkit-scrollbar {
+	display: none;
+}
+
+.project-editor-files-top-pane {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+.CodeMirror-vscrollbar {
+	display: none !important;
+}
+
+.project-editor-section::-webkit-scrollbar {
+	display: none;
+}
+
+.project-editor-section {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}

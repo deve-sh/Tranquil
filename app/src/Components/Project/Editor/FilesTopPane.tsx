@@ -18,7 +18,7 @@ const FilesTopPane = ({ files, activeFileId }: Props) => {
 	};
 
 	return (
-		<div className="overflow-x-auto w-full h-8 bg-slate-800 pl-2 flex">
+		<div className="project-editor-files-top-pane overflow-x-auto w-full h-8 bg-slate-800 pl-2 flex border-r-2 border-slate-700">
 			{Object.keys(openedFiles).map((fileId) => {
 				if (!openedFiles[fileId]) return <></>;
 				const fileInList = files.find((file) => file._id === fileId);

@@ -361,7 +361,7 @@ const ProjectEditor = () => {
 
 	return (
 		<div className="project-editor flex w-full h-screen">
-			<div className="project-editor-section sm:w-1/5 bg-slate-700 h-full">
+			<div className="project-editor-section sm:w-1/5 bg-slate-700 h-full overflow-x-auto">
 				<FileView
 					tree={nestedFileTree}
 					activeFileId={activeFileId}

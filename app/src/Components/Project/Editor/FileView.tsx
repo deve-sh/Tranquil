@@ -66,7 +66,10 @@ const FileView = ({
 					? (entry.fileName || entry.path)?.split(".").pop()
 					: "";
 				return (
-					<div key={entryId} className={`${className || ""} p-1`}>
+					<div
+						key={entryId}
+						className={`${className || ""} p-1 project-editor-fileview`}
+					>
 						<div
 							className={`fileview-fragment flex items-center gap-2 group text-white cursor-pointer ${
 								!entry.isDirectory && entry._id === activeFileId
