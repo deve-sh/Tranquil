@@ -12,12 +12,15 @@ const Project = ({ project }: { project: ProjectFromBackend }) => (
 	<Link
 		to={`/project/${project._id}`}
 		className="flex items-center gap-3 rounded-lg border p-3 text-slate-700 hover:scale-105 transition-all ease-in-out"
+		title={project.projectName}
 	>
 		<Image
 			src={getTemplateInfoFromId(project.template)?.image}
 			className="rounded-lg w-[3.5rem] h-[3.5rem] object-cover"
 		/>
-		{project.projectName}
+		<div className="overflow-hidden text-ellipsis w-[10rem] w-[10rem] line-clamp-2">
+			{project.projectName}
+		</div>
 	</Link>
 );
 
