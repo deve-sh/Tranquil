@@ -1,5 +1,6 @@
 import request from "./request";
 
+import getProjectIdsFromCache from "../Components/ProjectList/utils/getProjectIdsFromCache";
 import {
 	createProjectEndpoint,
 	getUserProjectsEndpoint,
@@ -34,7 +35,11 @@ export const updateProject = async (projectId: string) => {
 
 export const getUserProjects = async () => {
 	try {
-		const response = await request(getUserProjectsEndpoint);
+		const projectIds = getProjectIdsFromCache();
+		const response = await request(getUserProjectsEndpoint, {
+			data: { projectIds },
+			method: "post",
+		});
 		return { error: null, data: response };
 	} catch (error) {
 		return { error, data: null };
