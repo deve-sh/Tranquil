@@ -1,7 +1,14 @@
 const Project = require("../../common/db/models/Project");
 
-module.exports.getUserProjects = async (req, res) => {
-	return res.json(await Project.find({}).lean());
+module.exports.getProjectsByIDs = async (req, res) => {
+	const { projectIds } = req.body;
+	return res.json(
+		await Project.find({
+			_id: {
+				$in: projectIds || [],
+			},
+		}).lean()
+	);
 };
 
 module.exports.getProjectInfo = async (req, res) => {
