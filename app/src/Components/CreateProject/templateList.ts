@@ -11,4 +11,8 @@ const templateList = [
 	},
 ];
 
+export const getTemplateInfoFromId = (templateId: string) => {
+	return templateList.find((template) => template.id === templateId);
+};
+
 export default templateList;
