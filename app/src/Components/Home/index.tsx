@@ -1,4 +1,5 @@
 import { BsArrowRightShort, BsGithub } from "react-icons/bs";
+import { AiFillCode } from "react-icons/ai";
 
 import Button from "../Reusables/Button";
 import Image from "../Reusables/Image";
@@ -9,9 +10,12 @@ import ProjectList from "../ProjectList";
 const Homepage = () => {
 	return (
 		<>
-			<section className="homepage-section min-h-screen pt-32">
+			<section className="homepage-section min-h-screen pt-16">
 				<div className="text-center flex p-6 items-center">
 					<div className="max-w-[850px] flex flex-col gap-3 justify-center m-auto">
+						<div className="text-7xl flex justify-center pb-10">
+							<AiFillCode />
+						</div>
 						<h1 className="text-4xl md:text-6xl font-extrabold">
 							Build In Your{" "}
 							<div className="text-emerald-700 inline-block">Browser</div>
