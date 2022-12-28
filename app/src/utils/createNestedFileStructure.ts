@@ -16,11 +16,11 @@ export const getDirectoryFromFilePath = (filePath: string) => {
 	return directoryInFilename;
 };
 
-const getFileNameFromFilePath = (filePath: string) => {
+export const getFileNameFromFilePath = (filePath: string) => {
 	return filePath.split("/").pop();
 };
 
-const getFileExtensionFromFilePath = (filePath: string) => {
+export const getFileExtensionFromFilePath = (filePath: string) => {
 	return filePath.split(".").pop();
 };
 
@@ -36,11 +36,6 @@ const createNestedFileStructure = (fileList: FileFromBackend[]) => {
 		.map((file) => ({
 			...file,
 			path: file.path.replace(/\\/g, "/"),
-		}))
-		.map((file) => ({
-			...file,
-			fileName: getFileNameFromFilePath(file.path),
-			extension: getFileExtensionFromFilePath(file.path),
 		}));
 
 	// Create entries for individual directories at the top
