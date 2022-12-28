@@ -32,12 +32,16 @@ import Instructions from "./Instructions";
 import EnvironmentVariables from "./EnvironmentVariables";
 
 import useExpandDirsForActiveFile from "./hooks/useExpandDirsForActiveFile";
+import useExpandedDirectories from "../../../stores/ProjectEditor/expandedDirectories";
 import isDeletionProtectedFile from "./utils/deletionProtectedFiles";
 
 const ProjectEditor = () => {
 	const { projectId } = useParams();
 
 	const toast = useToast();
+	const resetExpandedDirectories = useExpandedDirectories(
+		(store) => store.resetExpanded
+	);
 
 	// This is used when there is more than one instance of the project running on the same or different devices.
 	// We can obviously have real-time editing and previews, but it's not a feature that's available right now.
@@ -155,6 +159,7 @@ const ProjectEditor = () => {
 
 			return () => {
 				disconnectProjectSocket(projectId);
+				resetExpandedDirectories();
 			};
 		}
 	}, [projectId]);
