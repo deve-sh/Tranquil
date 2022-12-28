@@ -17,7 +17,10 @@ import {
 } from "../../../socket/projectSocketConnection";
 
 import type FileFromBackend from "../../../types/File";
-import createNestedFileStructure from "../../../utils/createNestedFileStructure";
+import createNestedFileStructure, {
+	getFileExtensionFromFilePath,
+	getFileNameFromFilePath,
+} from "../../../utils/createNestedFileStructure";
 import useToast from "../../../hooks/useToast";
 
 import CodeEditor from "./CodeEditor";
@@ -33,15 +36,18 @@ import EnvironmentVariables from "./EnvironmentVariables";
 
 import useExpandDirsForActiveFile from "./hooks/useExpandDirsForActiveFile";
 import useExpandedDirectories from "../../../stores/ProjectEditor/expandedDirectories";
+import useOpenedFiles from "../../../stores/ProjectEditor/openedFiles";
 import isDeletionProtectedFile from "./utils/deletionProtectedFiles";
 
 const ProjectEditor = () => {
 	const { projectId } = useParams();
 
 	const toast = useToast();
-	const resetExpandedDirectories = useExpandedDirectories(
+	const resetExpandedDirectoriesList = useExpandedDirectories(
 		(store) => store.resetExpanded
 	);
+	const resetOpenedFilesList = useOpenedFiles((store) => store.resetOpened);
+	const setOpenedFile = useOpenedFiles((state) => state.setOpened);
 
 	// This is used when there is more than one instance of the project running on the same or different devices.
 	// We can obviously have real-time editing and previews, but it's not a feature that's available right now.
@@ -122,6 +128,8 @@ const ProjectEditor = () => {
 		const fileList = response.fileList.map((file: FileFromBackend) => ({
 			...file,
 			path: file.path.replace(/[\\]/g, "/"),
+			fileName: getFileNameFromFilePath(file.path),
+			extension: getFileExtensionFromFilePath(file.path),
 		}));
 		setFileList(fileList);
 		createNestedFileStructure(fileList);
@@ -138,6 +146,7 @@ const ProjectEditor = () => {
 		}
 		setActiveFileId(latestUpdatedFile._id);
 		setActiveFile(latestUpdatedFile);
+		setOpenedFile(latestUpdatedFile._id, true);
 	}, [projectId]);
 
 	useEffect(() => {
@@ -154,12 +163,12 @@ const ProjectEditor = () => {
 			// Initialize socket connection to project room.
 			initializeProjectSocket(projectId);
 			setupProjectEventListeners(onProjectSocketEvent);
-
 			getFileListAndSetLastUpdatedFile();
 
 			return () => {
 				disconnectProjectSocket(projectId);
-				resetExpandedDirectories();
+				resetExpandedDirectoriesList();
+				resetOpenedFilesList();
 			};
 		}
 	}, [projectId]);
@@ -195,6 +204,7 @@ const ProjectEditor = () => {
 			fileList.find((file) => file._id === fileId) as FileFromBackend
 		);
 		setActiveFileId(fileId);
+		setOpenedFile(fileId, true);
 	};
 
 	const onCodeChange = (_: any, __: any, value: string) => {
@@ -372,7 +382,8 @@ const ProjectEditor = () => {
 						onChange={onCodeChange}
 						extension={activeFile?.path?.split(".").pop() || ""}
 						onSave={onFileSave}
-						key={activeFileId}
+						activeFileId={activeFileId}
+						fileList={fileList}
 					/>
 				)}
 			</div>

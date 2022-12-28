@@ -2,11 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { type Editor as CodemirrorEditorType } from "codemirror";
 import { Controlled as CodeMirror } from "react-codemirror2";
 
+import type FileFromBackend from "../../../types/File";
 import {
 	codemirrorModesByExtension,
 	languageNamesByExtension,
 } from "./utils/languageModes";
 import CodeEditorBottomPane from "./CodeEditorBottomPane";
+import FilesTopPane from "./FilesTopPane";
 
 import "codemirror/lib/codemirror.css";
 import "codemirror/theme/material.css";
@@ -21,6 +23,8 @@ interface CodeEditorProps {
 	extension: string;
 	onChange: (editor: any, data: any, value: string) => any;
 	onSave: (editor: CodemirrorEditorType) => any;
+	fileList: FileFromBackend[];
+	activeFileId: string;
 }
 
 const CodeEditor = (props: CodeEditorProps) => {
@@ -29,7 +33,7 @@ const CodeEditor = (props: CodeEditorProps) => {
 	const [cursorPosition, setCursorPosition] = useState({ ch: 0, line: 0 });
 
 	useEffect(() => {
-		if (editorRef.current) editorRef.current.setSize("100%", "96.5%");
+		if (editorRef.current) editorRef.current.setSize("100%", "92.5%");
 	}, []);
 
 	const onCursorActivity = (editor: CodemirrorEditorType) =>
@@ -37,6 +41,7 @@ const CodeEditor = (props: CodeEditorProps) => {
 
 	return (
 		<div className="h-full relative">
+			<FilesTopPane files={props.fileList} activeFileId={props.activeFileId} />
 			<CodeMirror
 				value={props.code || ""}
 				onBeforeChange={props.onChange}
