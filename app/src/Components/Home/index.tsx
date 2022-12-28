@@ -4,6 +4,7 @@ import Button from "../Reusables/Button";
 import Image from "../Reusables/Image";
 
 import CreateProject from "../CreateProject";
+import ProjectList from "../ProjectList";
 
 const Homepage = () => {
 	return (
@@ -58,6 +59,7 @@ const Homepage = () => {
 				</div>
 			</section>
 			<CreateProject />
+			<ProjectList />
 		</>
 	);
 };
