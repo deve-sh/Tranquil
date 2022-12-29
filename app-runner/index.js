@@ -51,7 +51,7 @@ if (
 			if (errorCreatingHTTPSTunnel)
 				return broadcastToProjectSocket(socket, projectId, {
 					state: PROJECT_INSTANCE_STATES.CRASHED,
-					error: errorCreatingHTTPSTunnel.message,
+					error: errorCreatingHTTPSTunnel.message || "Failed to create tunnel.",
 				});
 			broadcastToProjectSocket(socket, projectId, {
 				type: PROJECT_HTTPS_TUNNEL_CREATED,

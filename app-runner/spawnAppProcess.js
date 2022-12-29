@@ -35,13 +35,13 @@ const spawnAppServer = ({ command, projectId, socket }) => {
 		if (code || signal) {
 			// Errored Exit
 			broadcastToProjectSocket(socket, projectId, {
-				type: PROJECT_INSTANCE_STATES.CRASHED,
-				code,
+				state: PROJECT_INSTANCE_STATES.CRASHED,
+				code: code || signal,
 			});
 		} else {
 			// Clean Exit
 			broadcastToProjectSocket(socket, projectId, {
-				type: PROJECT_INSTANCE_STATES.STOPPED,
+				state: PROJECT_INSTANCE_STATES.STOPPED,
 			});
 		}
 	});
