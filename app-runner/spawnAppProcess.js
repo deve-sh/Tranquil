@@ -46,16 +46,17 @@ const spawnAppServer = ({ command, projectId, socket }) => {
 		}
 	});
 
-	const fiveMinutes = 5 * 60 * 1000;
+	const tenMinutes = 10 * 60 * 1000;
 	const waitOnOptions = {
 		resources: ["http://localhost:3000"],
-		timeout: fiveMinutes,
+		timeout: tenMinutes,
 	};
 
 	waitOn(waitOnOptions, (err) => {
 		if (err)
 			return broadcastToProjectSocket(socket, projectId, {
 				state: PROJECT_INSTANCE_STATES.CRASHED,
+				error: "Project took too long to respond",
 			});
 		broadcastToProjectSocket(socket, projectId, {
 			state: PROJECT_INSTANCE_STATES.READY,
