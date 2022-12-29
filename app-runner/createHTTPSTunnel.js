@@ -1,6 +1,6 @@
 const ngrok = require("ngrok");
 
-const createHTTPSTunnel = async (port = 300) => {
+const createHTTPSTunnel = async (port = 3000) => {
 	try {
 		const url = await ngrok.connect(port);
 		return { url };

@@ -89,6 +89,7 @@ if (projectId && installCommand && startCommand && broadCastSecret) {
 			});
 		});
 	} catch (err) {
+		fse.writeFileSync("errorlog", JSON.stringify(err.message));
 		return broadcastToProjectSocket(socket, projectId, {
 			state: PROJECT_INSTANCE_STATES.CRASHED,
 			error: err,
