@@ -25,10 +25,17 @@ const installCommand = process.argv[3] || "npm install";
 const startCommand = process.argv[4] || "npm run start";
 
 const broadCastSecret = process.env.PROJECT_SOCKET_BROADCAST_SECRET;
+const ngrokHTTPSTunnelAuthToken = process.env.NGROK_AUTH_TOKEN;
 
 let currentlyRunningAppProcess;
 
-if (projectId && installCommand && startCommand && broadCastSecret) {
+if (
+	projectId &&
+	installCommand &&
+	startCommand &&
+	broadCastSecret &&
+	ngrokHTTPSTunnelAuthToken
+) {
 	try {
 		const socket = io(process.env.MAIN_BACKEND_URL);
 
