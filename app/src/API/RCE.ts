@@ -27,7 +27,9 @@ export const shutdownProjectRCE = async (projectId: string) => {
 
 export const restartProjectServer = async (projectId: string) => {
 	try {
-		const response = await request(restartProjectServerEndpoint(projectId));
+		const response = await request(restartProjectServerEndpoint(projectId), {
+			method: "post",
+		});
 		return { error: null, data: response };
 	} catch (error) {
 		return { error, data: null };

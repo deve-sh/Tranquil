@@ -141,6 +141,7 @@ module.exports.initializeProject = async (req, res) => {
 		)
 			return res.json({
 				message: "Project is already running",
+				status: runningProjectDocInDB.status,
 				publicIP: runningProjectDocInDB.publicIP,
 				publicURL: runningProjectDocInDB.publicURL,
 			});
@@ -148,6 +149,8 @@ module.exports.initializeProject = async (req, res) => {
 		if (runningProjectDocInDB && runningProjectDocInDB.status === "starting")
 			return res.json({
 				message: "Project is currently starting up.",
+				publicIP: runningProjectDocInDB.publicIP,
+				publicURL: runningProjectDocInDB.publicURL,
 			});
 
 		const { PROJECT_INIT_UPDATE } = require("../../common/socketTypes");
@@ -207,9 +210,6 @@ module.exports.initializeProject = async (req, res) => {
 		sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
 			step: "app-setup-succeeded",
 		});
-
-		newProjectRunningDoc.status = "live";
-		await newProjectRunningDoc.save();
 
 		return sendMessageToProjectSocketRoom(projectId, PROJECT_INIT_UPDATE, {
 			step: "project-initialization-completed",

@@ -19,6 +19,16 @@ const socketServer = socketIO(expressServer, {
 	cors: { origin: "*" },
 });
 
+const shutDownProjectAndInstance = (roomId) => {
+	// Use the inbuilt controller function to make the request.
+	const mockSelfRequest = require("../utils/mockSelfRequest");
+	const getProjectIdFromSocketRoom = require("./utils/getProjectIdFromSocketRoom");
+	const { shutDownProject } = require("../controllers/rce");
+
+	const requestParams = { projectId: getProjectIdFromSocketRoom(roomId) };
+	mockSelfRequest(shutDownProject, { params: requestParams });
+};
+
 socketServer.on("connection", (client) => {
 	client.on(LISTEN_TO_PROJECT, async (event) => {
 		if (!event || !event.projectId) return;
@@ -87,13 +97,7 @@ socketServer.on("connection", (client) => {
 
 		if (!socketsInRoom.length) {
 			// No connections left to the room. Shut the instance down and delete mongodb document for it.
-			// Use the inbuilt controller function to make the request.
-			const mockSelfRequest = require("../utils/mockSelfRequest");
-			const getProjectIdFromSocketRoom = require("./utils/getProjectIdFromSocketRoom");
-			const { shutDownProject } = require("../controllers/rce");
-
-			const requestParams = { projectId: getProjectIdFromSocketRoom(roomId) };
-			mockSelfRequest(shutDownProject, { params: requestParams });
+			shutDownProjectAndInstance(roomId);
 		}
 	});
 });

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 
 import {
 	createProjectFile,
@@ -41,6 +41,7 @@ import isDeletionProtectedFile from "./utils/deletionProtectedFiles";
 
 const ProjectEditor = () => {
 	const { projectId } = useParams();
+	const navigate = useNavigate();
 
 	const toast = useToast();
 	const resetExpandedDirectoriesList = useExpandedDirectories(
@@ -57,10 +58,12 @@ const ProjectEditor = () => {
 	// Project Execution Iframe
 	const iframeRef = useRef<HTMLIFrameElement | null>(null);
 	const [projectAppInstanceURL, setProjectAppInstanceURL] = useState("");
+	const [projectIframeIsReady, setProjectIframeIsReady] = useState(false);
 
-	const reloadIframe = useCallback(() => {
-		if (iframeRef.current) iframeRef.current.src = iframeRef.current.src;
-	}, []);
+	const reloadIframe = () => {
+		if (iframeRef.current && projectAppInstanceURL)
+			iframeRef.current.src = projectAppInstanceURL;
+	};
 
 	// File List and active file info
 	const [fileList, setFileList] = useState<FileFromBackend[]>([]);
@@ -108,13 +111,26 @@ const ProjectEditor = () => {
 				eventPayload.data &&
 				eventPayload.data.state === "project-instance-ready"
 			)
-				reloadIframe();
+				setProjectIframeIsReady(true);
 
 			if (
 				eventPayload.data &&
 				eventPayload.data.state === "project-instance-restarting"
-			)
+			) {
 				setProjectAppInstanceURL("");
+				setProjectIframeIsReady(false);
+			}
+
+			if (
+				eventPayload.data &&
+				eventPayload.data.state === "project-instance-crashed"
+			) {
+				toast({
+					type: "error",
+					message: "Project took too long to start up or crashed.",
+				});
+				navigate("/");
+			}
 		},
 		[projectId]
 	);
@@ -154,6 +170,7 @@ const ProjectEditor = () => {
 		if (!projectRunningOnDifferentDevice && projectId) {
 			initializeProjectRCE(projectId).then(({ data: response }) => {
 				if (response.publicURL) setProjectAppInstanceURL(response.publicURL);
+				if (response.status === "live") setProjectIframeIsReady(true);
 			});
 		}
 	}, [projectId, projectRunningOnDifferentDevice]);
@@ -186,6 +203,10 @@ const ProjectEditor = () => {
 			);
 		} else setCode("");
 	}, [activeFileId]);
+
+	useEffect(() => {
+		if (projectIframeIsReady) reloadIframe();
+	}, [projectIframeIsReady]);
 
 	useEffect(() => {
 		if (fileList.length) setNestedFileTree(createNestedFileStructure(fileList));
@@ -391,7 +412,7 @@ const ProjectEditor = () => {
 			<div className="project-editor-section sm:w-2/5">
 				<ProjectIframe
 					projectId={projectId}
-					src={projectAppInstanceURL}
+					src={projectIframeIsReady ? projectAppInstanceURL : ""}
 					toggleTerminal={toggleProjectTerminal}
 					toggleUsageInstructions={toggleUsageInstructions}
 					toggleEnvironmentVariables={toggleEnvironmentVariables}
