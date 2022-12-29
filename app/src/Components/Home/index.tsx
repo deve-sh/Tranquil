@@ -56,7 +56,7 @@ const Homepage = () => {
 				</div>
 				<div className="homepage-section-image-wrapper w-full p-4 mb-8">
 					<Image
-						src="/images/v1screenshot.jpeg"
+						src="/images/v1screenshot.png"
 						className="w-3/4 shadow-2xl rounded-lg"
 						containerClass="w-full flex justify-center items-center"
 					/>
