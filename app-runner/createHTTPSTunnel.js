@@ -1,9 +1,13 @@
 const ngrok = require("ngrok");
+const fse = require("fs-extra");
 
 const createHTTPSTunnel = async (port = 3000) => {
 	try {
-		await ngrok.authtoken(process.env.NGROK_AUTH_TOKEN);
-		const url = await ngrok.connect(port);
+		fse.writeFileSync(
+			"ngrok.yml",
+			`authtoken: ${process.env.NGROK_AUTH_TOKEN}`
+		);
+		const url = await ngrok.connect({ addr: port, configPath: "./ngrok.yml" });
 		return { url };
 	} catch (error) {
 		return { error };
