@@ -48,10 +48,13 @@ if (
 			const { url: httpsTunnelURL, error: errorCreatingHTTPSTunnel } =
 				await createHTTPSTunnel();
 
-			if (errorCreatingHTTPSTunnel)
+			if (errorCreatingHTTPSTunnel || !url)
 				return broadcastToProjectSocket(socket, projectId, {
 					state: PROJECT_INSTANCE_STATES.CRASHED,
-					error: errorCreatingHTTPSTunnel.message || "Failed to create tunnel.",
+					error:
+						errorCreatingHTTPSTunnel.message ||
+						errorCreatingHTTPSTunnel ||
+						"Failed to create tunnel.",
 				});
 			broadcastToProjectSocket(socket, projectId, {
 				type: PROJECT_HTTPS_TUNNEL_CREATED,
