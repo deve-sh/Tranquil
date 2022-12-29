@@ -45,12 +45,13 @@ if (
 			socket.emit(PROJECT_APP_RUNNER_SOCKET, { projectId });
 
 			// Create HTTPS Tunnel and send it to frontend to connect to over HTTPS
-			const { url: httpsTunnelURL, error: errorCreatingHTTPSTunner } =
+			const { url: httpsTunnelURL, error: errorCreatingHTTPSTunnel } =
 				await createHTTPSTunnel();
 
-			if (errorCreatingHTTPSTunner)
+			if (errorCreatingHTTPSTunnel)
 				return broadcastToProjectSocket(socket, projectId, {
 					state: PROJECT_INSTANCE_STATES.CRASHED,
+					error: errorCreatingHTTPSTunnel,
 				});
 			broadcastToProjectSocket(socket, projectId, {
 				type: PROJECT_HTTPS_TUNNEL_CREATED,
