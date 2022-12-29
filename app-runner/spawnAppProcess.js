@@ -66,7 +66,7 @@ const spawnAppServer = ({ command, projectId, socket }) => {
 			return socket.emit(BROADCAST_TO_PROJECT, {
 				projectId,
 				broadCastSecret,
-				data: { type: PROJECT_INSTANCE_STATES.CRASHED },
+				data: { state: PROJECT_INSTANCE_STATES.CRASHED },
 			});
 		socket.emit(BROADCAST_TO_PROJECT, {
 			projectId,
