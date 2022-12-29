@@ -55,9 +55,10 @@ const spawnAppServer = ({ command, projectId, socket }) => {
 		}
 	});
 
+	const fiveMinutes = 5 * 60 * 1000;
 	const waitOnOptions = {
 		resources: ["http://localhost:3000"],
-		timeout: 60000,
+		timeout: fiveMinutes,
 	};
 
 	waitOn(waitOnOptions, (err) => {
