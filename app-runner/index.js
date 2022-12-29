@@ -51,7 +51,7 @@ if (
 			if (errorCreatingHTTPSTunnel)
 				return broadcastToProjectSocket(socket, projectId, {
 					state: PROJECT_INSTANCE_STATES.CRASHED,
-					error: errorCreatingHTTPSTunnel,
+					error: errorCreatingHTTPSTunnel.message,
 				});
 			broadcastToProjectSocket(socket, projectId, {
 				type: PROJECT_HTTPS_TUNNEL_CREATED,
@@ -100,7 +100,7 @@ if (
 		fse.writeFileSync("errorlog", JSON.stringify(err.message));
 		return broadcastToProjectSocket(socket, projectId, {
 			state: PROJECT_INSTANCE_STATES.CRASHED,
-			error: err,
+			error: err.message,
 		});
 	}
 }
