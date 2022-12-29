@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { MdArrowBack } from "react-icons/md";
 
 import {
 	createProjectFile,
@@ -167,12 +168,12 @@ const ProjectEditor = () => {
 
 	useEffect(() => {
 		// Send an initialization API Call for the project.
-		if (!projectRunningOnDifferentDevice && projectId) {
-			initializeProjectRCE(projectId).then(({ data: response }) => {
-				if (response.publicURL) setProjectAppInstanceURL(response.publicURL);
-				if (response.status === "live") setProjectIframeIsReady(true);
-			});
-		}
+		// if (!projectRunningOnDifferentDevice && projectId) {
+		// 	initializeProjectRCE(projectId).then(({ data: response }) => {
+		// 		if (response.publicURL) setProjectAppInstanceURL(response.publicURL);
+		// 		if (response.status === "live") setProjectIframeIsReady(true);
+		// 	});
+		// }
 	}, [projectId, projectRunningOnDifferentDevice]);
 
 	useEffect(() => {
@@ -383,6 +384,16 @@ const ProjectEditor = () => {
 	return (
 		<div className="project-editor flex w-full h-screen">
 			<div className="project-editor-section sm:w-1/5 bg-slate-700 h-full overflow-x-auto">
+				<a
+					href="#"
+					className="text-md p-2 text-white pl-1 border-b border-slate-400 block"
+					onClick={(e) => {
+						e.preventDefault();
+						navigate("/");
+					}}
+				>
+					<MdArrowBack />
+				</a>
 				<FileView
 					tree={nestedFileTree}
 					activeFileId={activeFileId}
