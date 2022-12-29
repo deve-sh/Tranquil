@@ -168,12 +168,12 @@ const ProjectEditor = () => {
 
 	useEffect(() => {
 		// Send an initialization API Call for the project.
-		// if (!projectRunningOnDifferentDevice && projectId) {
-		// 	initializeProjectRCE(projectId).then(({ data: response }) => {
-		// 		if (response.publicURL) setProjectAppInstanceURL(response.publicURL);
-		// 		if (response.status === "live") setProjectIframeIsReady(true);
-		// 	});
-		// }
+		if (!projectRunningOnDifferentDevice && projectId) {
+			initializeProjectRCE(projectId).then(({ data: response }) => {
+				if (response.publicURL) setProjectAppInstanceURL(response.publicURL);
+				if (response.status === "live") setProjectIframeIsReady(true);
+			});
+		}
 	}, [projectId, projectRunningOnDifferentDevice]);
 
 	useEffect(() => {
