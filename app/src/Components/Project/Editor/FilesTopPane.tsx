@@ -29,7 +29,7 @@ const FilesTopPane = ({ files, activeFileId, onFileClick }: Props) => {
 				return (
 					<div
 						key={fileId}
-						className={`text-ellipsis flex items-center overflow-hidden w-fit transition-all ease-in-out py-2 px-4 text-xs text-white cursor-pointer group ${
+						className={`flex items-center min-w-fit overflow-hidden transition-all ease-in-out py-2 px-4 text-xs text-white cursor-pointer group ${
 							activeFileId === fileId ? "bg-editor" : ""
 						}`}
 						onClick={() =>
