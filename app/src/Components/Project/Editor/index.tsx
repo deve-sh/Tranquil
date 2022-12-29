@@ -138,7 +138,10 @@ const ProjectEditor = () => {
 			) {
 				toast({
 					type: "error",
-					message: "Project took too long to start up or crashed.",
+					message:
+						typeof eventPayload.data.error === "string"
+							? eventPayload.data.error
+							: "Project took too long to start up or crashed.",
 				});
 				navigate("/");
 			}

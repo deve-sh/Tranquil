@@ -1,19 +1,19 @@
 {
-  "name": "app-runner",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "dotenv": "^16.0.3",
-    "fs-extra": "^11.1.0",
-    "ngrok": "^4.3.3",
-    "socket.io-client": "^4.5.4",
-    "wait-on": "^7.0.1"
-  }
+	"name": "app-runner",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"dotenv": "^16.0.3",
+		"fs-extra": "^11.1.0",
+		"ngrok": "^3.4.1",
+		"socket.io-client": "^4.5.4",
+		"wait-on": "^7.0.1"
+	}
 }
