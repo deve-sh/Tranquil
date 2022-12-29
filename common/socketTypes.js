@@ -7,6 +7,7 @@ module.exports.PROJECT_INIT_UPDATE = "project-initialization-update";
 module.exports.PROJECT_SHUT_DOWN = "project-shut-down";
 module.exports.PROJECT_SOCKET_ROOM_JOINED = "project-socket-room-joined";
 module.exports.PROJECT_SOCKET_ROOM_REJECTED = "project-socket-room-rejected";
+module.exports.PROJECT_HTTPS_TUNNEL_CREATED = "project-https-tunnel-created";
 
 module.exports.FILE_UPDATED = "file-updated";
 module.exports.TRIGGER_SERVER_RESTART = "trigger-server-restart";

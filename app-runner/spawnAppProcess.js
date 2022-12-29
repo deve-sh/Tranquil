@@ -1,14 +1,10 @@
 const waitOn = require("wait-on");
 const { spawn } = require("child_process");
 
-const {
-	BROADCAST_TO_PROJECT,
-	PROJECT_INSTANCE_STATES,
-} = require("../common/socketTypes");
+const broadcastToProjectSocket = require("./broadcastToProjectSocket");
+const { PROJECT_INSTANCE_STATES } = require("../common/socketTypes");
 
 let appRunningProcess;
-
-const broadCastSecret = process.env.PROJECT_SOCKET_BROADCAST_SECRET;
 
 const spawnAppServer = ({ command, projectId, socket }) => {
 	// Spawn app install and runner processes.
@@ -17,10 +13,9 @@ const spawnAppServer = ({ command, projectId, socket }) => {
 		const logString = data.toString().trim();
 		if (logString.length) {
 			// Send to server via socket for it to broadcast to project clients.
-			socket.emit(BROADCAST_TO_PROJECT, {
-				projectId,
-				broadCastSecret,
-				data: { type: PROJECT_INSTANCE_STATES.STDOUT, log: logString },
+			broadcastToProjectSocket(socket, projectId, {
+				type: PROJECT_INSTANCE_STATES.STDOUT,
+				log: logString,
 			});
 		}
 	});
@@ -29,10 +24,9 @@ const spawnAppServer = ({ command, projectId, socket }) => {
 		const logString = data.toString();
 		if (logString.trim().length) {
 			// Send to server via socket for it to broadcast to project clients.
-			socket.emit(BROADCAST_TO_PROJECT, {
-				projectId,
-				broadCastSecret,
-				data: { type: PROJECT_INSTANCE_STATES.STDERR, log: logString },
+			broadcastToProjectSocket(socket, projectId, {
+				type: PROJECT_INSTANCE_STATES.STDERR,
+				log: logString,
 			});
 		}
 	});
@@ -40,17 +34,14 @@ const spawnAppServer = ({ command, projectId, socket }) => {
 	appRunningProcess.on("close", (code, signal) => {
 		if (code || signal) {
 			// Errored Exit
-			socket.emit(BROADCAST_TO_PROJECT, {
-				projectId,
-				broadCastSecret,
-				data: { type: PROJECT_INSTANCE_STATES.CRASHED, code },
+			broadcastToProjectSocket(socket, projectId, {
+				type: PROJECT_INSTANCE_STATES.CRASHED,
+				code,
 			});
 		} else {
 			// Clean Exit
-			socket.emit(BROADCAST_TO_PROJECT, {
-				projectId,
-				broadCastSecret,
-				data: { type: PROJECT_INSTANCE_STATES.STOPPED },
+			broadcastToProjectSocket(socket, projectId, {
+				type: PROJECT_INSTANCE_STATES.STOPPED,
 			});
 		}
 	});
@@ -63,15 +54,11 @@ const spawnAppServer = ({ command, projectId, socket }) => {
 
 	waitOn(waitOnOptions, (err) => {
 		if (err)
-			return socket.emit(BROADCAST_TO_PROJECT, {
-				projectId,
-				broadCastSecret,
-				data: { state: PROJECT_INSTANCE_STATES.CRASHED },
+			return broadcastToProjectSocket(socket, projectId, {
+				state: PROJECT_INSTANCE_STATES.CRASHED,
 			});
-		socket.emit(BROADCAST_TO_PROJECT, {
-			projectId,
-			broadCastSecret,
-			data: { state: PROJECT_INSTANCE_STATES.READY },
+		broadcastToProjectSocket(socket, projectId, {
+			state: PROJECT_INSTANCE_STATES.READY,
 		});
 	});
 
