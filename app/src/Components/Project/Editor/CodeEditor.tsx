@@ -34,7 +34,7 @@ const CodeEditor = (props: CodeEditorProps) => {
 	const [cursorPosition, setCursorPosition] = useState({ ch: 0, line: 0 });
 
 	useEffect(() => {
-		if (editorRef.current) editorRef.current.setSize("100%", "92.5%");
+		if (editorRef.current) editorRef.current.setSize("100%", "96.5%");
 	}, []);
 
 	const onCursorActivity = (editor: CodemirrorEditorType) =>
@@ -52,7 +52,7 @@ const CodeEditor = (props: CodeEditorProps) => {
 				onBeforeChange={props.onChange}
 				onCursorActivity={onCursorActivity}
 				editorDidMount={(editor) => (editorRef.current = editor)}
-				className="code-editor h-full"
+				className="code-editor h-[93.5%]"
 				options={{
 					mode: codemirrorModesByExtension[props.extension] || "",
 					theme: "material",
