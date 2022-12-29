@@ -94,8 +94,10 @@ const ProjectEditor = () => {
 			if (
 				eventPayload.step === "project-initialization-completed" &&
 				eventPayload.publicURL
-			)
+			) {
+				// This is a direct EC2 instance URL and hence requires port to be specified as well.
 				setProjectAppInstanceURL("http://" + eventPayload.publicURL + ":3000");
+			}
 
 			// Process and show logs to user.
 			if (eventPayload.data && eventPayload.data.log)
@@ -121,6 +123,13 @@ const ProjectEditor = () => {
 				setProjectAppInstanceURL("");
 				setProjectIframeIsReady(false);
 			}
+
+			if (
+				eventPayload.data &&
+				eventPayload.data.type === "project-https-tunnel-created" &&
+				eventPayload.data.url
+			)
+				setProjectAppInstanceURL(eventPayload.data.url);
 
 			if (
 				eventPayload.data &&

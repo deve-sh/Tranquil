@@ -10,6 +10,7 @@ const {
 	PROJECT_INSTANCE_STATES,
 	PROJECT_SOCKET_ROOM_JOINED,
 	PROJECT_SOCKET_ROOM_REJECTED,
+	PROJECT_HTTPS_TUNNEL_CREATED,
 } = require("../../common/socketTypes");
 
 const getProjectSocketRoomId = require("./utils/getProjectSocketRoomId");
@@ -78,6 +79,10 @@ socketServer.on("connection", (client) => {
 		if (event.data.type === PROJECT_INSTANCE_STATES.READY) {
 			const setProjectInstanceAsReadyInDB = require("../utils/rce/setProjectInstanceAsReadyInDB");
 			setProjectInstanceAsReadyInDB(event.projectId);
+		}
+		if (event.data.type === PROJECT_HTTPS_TUNNEL_CREATED && event.data.url) {
+			const updatePublicURLForProjectInstance = require("../utils/rce/updatePublicURLForProjectInstance");
+			updatePublicURLForProjectInstance(event.projectId, event.data.url);
 		}
 	});
 
