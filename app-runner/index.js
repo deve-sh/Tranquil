@@ -12,12 +12,10 @@ const {
 	PROJECT_APP_RUNNER_SOCKET,
 	FILE_UPDATED,
 	TRIGGER_SERVER_RESTART,
-	PROJECT_HTTPS_TUNNEL_CREATED,
 } = require("../common/socketTypes");
 
 const spawnAppProcess = require("./spawnAppProcess");
 const killProcess = require("./killProcess");
-const createHTTPSTunnel = require("./createHTTPSTunnel");
 const broadcastToProjectSocket = require("./broadcastToProjectSocket");
 
 const projectId = process.argv[2] || "";
@@ -25,17 +23,10 @@ const installCommand = process.argv[3] || "npm install";
 const startCommand = process.argv[4] || "npm run start";
 
 const broadCastSecret = process.env.PROJECT_SOCKET_BROADCAST_SECRET;
-const ngrokHTTPSTunnelAuthToken = process.env.NGROK_AUTH_TOKEN;
 
 let currentlyRunningAppProcess;
 
-if (
-	projectId &&
-	installCommand &&
-	startCommand &&
-	broadCastSecret &&
-	ngrokHTTPSTunnelAuthToken
-) {
+if (projectId && installCommand && startCommand && broadCastSecret) {
 	try {
 		const socket = io(process.env.MAIN_BACKEND_URL);
 
@@ -43,23 +34,6 @@ if (
 			// Connected to backend via socket.
 			// Send initialized status to socket server.
 			socket.emit(PROJECT_APP_RUNNER_SOCKET, { projectId });
-
-			// Create HTTPS Tunnel and send it to frontend to connect to over HTTPS
-			const { url: httpsTunnelURL, error: errorCreatingHTTPSTunnel } =
-				await createHTTPSTunnel();
-
-			if (errorCreatingHTTPSTunnel || !url)
-				return broadcastToProjectSocket(socket, projectId, {
-					state: PROJECT_INSTANCE_STATES.CRASHED,
-					error:
-						errorCreatingHTTPSTunnel.message ||
-						errorCreatingHTTPSTunnel ||
-						"Failed to create tunnel.",
-				});
-			broadcastToProjectSocket(socket, projectId, {
-				type: PROJECT_HTTPS_TUNNEL_CREATED,
-				url: httpsTunnelURL,
-			});
 
 			// Spawn app install and runner processes.
 			const appRunningCommand = `cd ./project-app && ${installCommand} && ${startCommand}`;
