@@ -29,7 +29,12 @@ const activeHTTPSTunnel = async (tunnelURL) => {
 		}
 	}
 
-	await fetch(tunnelURL + endpointToHitToActivateTunnel, fetchOptions);
+	const tunnelActivationResp = await fetch(
+		tunnelURL + endpointToHitToActivateTunnel,
+		fetchOptions
+	).then((resp) => resp.json());
+
+	return tunnelActivationResp;
 };
 
 const createHTTPSTunnel = async (port = 3000) => {
@@ -37,8 +42,8 @@ const createHTTPSTunnel = async (port = 3000) => {
 		const tunnel = await localtunnel({ port });
 		if (!tunnel.url) throw new Error("Failed to create HTTPS tunnel.");
 
-		await activeHTTPSTunnel(tunnel.url);
-		return { url: tunnel.url, tunnel };
+		const tunnelActivationResp = await activeHTTPSTunnel(tunnel.url);
+		return { url: tunnel.url, tunnel, tunnelActivationResp };
 	} catch (error) {
 		console.log(error);
 		return { error };

@@ -38,8 +38,12 @@ if (projectId && installCommand && startCommand && broadCastSecret) {
 			socket.emit(PROJECT_APP_RUNNER_SOCKET, { projectId });
 
 			// Create HTTPS Tunnel and send it to frontend to connect to over HTTPS
-			const { url: httpsTunnelURL, error: errorCreatingHTTPSTunnel } =
-				await createHTTPSTunnel();
+			const {
+				url: httpsTunnelURL,
+				tunnel,
+				error: errorCreatingHTTPSTunnel,
+				tunnelActivationResp,
+			} = await createHTTPSTunnel();
 
 			if (errorCreatingHTTPSTunnel || !httpsTunnelURL)
 				return broadcastToProjectSocket(socket, projectId, {
@@ -52,6 +56,8 @@ if (projectId && installCommand && startCommand && broadCastSecret) {
 			broadcastToProjectSocket(socket, projectId, {
 				type: PROJECT_HTTPS_TUNNEL_CREATED,
 				url: httpsTunnelURL,
+				tunnel,
+				tunnelActivationResp,
 			});
 
 			// Spawn app install and runner processes.
