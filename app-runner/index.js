@@ -55,7 +55,7 @@ if (projectId && installCommand && startCommand && broadCastSecret) {
 			});
 
 			// Spawn app install and runner processes.
-			const appRunningCommand = `cd ./project-app && ${installCommand} && ${startCommand}`;
+			const appRunningCommand = `cd ./project-app && ${installCommand} && WDS_SOCKET_HOST=localhost WDS_SOCKET_PORT=443 ${startCommand}`;
 			currentlyRunningAppProcess = spawnAppProcess({
 				command: appRunningCommand,
 				socket,
