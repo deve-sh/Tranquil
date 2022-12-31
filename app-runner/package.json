@@ -12,6 +12,7 @@
 	"dependencies": {
 		"dotenv": "^16.0.3",
 		"fs-extra": "^11.1.0",
+		"ngrok": "^4.3.3",
 		"socket.io-client": "^4.5.4",
 		"wait-on": "^7.0.1"
 	}
