@@ -41,7 +41,7 @@ if (projectId && installCommand && startCommand && broadCastSecret) {
 			const { url: httpsTunnelURL, error: errorCreatingHTTPSTunnel } =
 				await createHTTPSTunnel();
 
-			if (errorCreatingHTTPSTunnel || !url)
+			if (errorCreatingHTTPSTunnel || !httpsTunnelURL)
 				return broadcastToProjectSocket(socket, projectId, {
 					state: PROJECT_INSTANCE_STATES.CRASHED,
 					error:

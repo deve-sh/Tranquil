@@ -129,7 +129,7 @@ const ProjectEditor = () => {
 				eventPayload.data.type === "project-https-tunnel-created" &&
 				eventPayload.data.url
 			)
-				// ngrok tunner created to serve content over HTTPS
+				// localtunnel/ngrok tunnel created to serve content over HTTPS
 				setProjectAppInstanceURL(eventPayload.data.url);
 
 			if (
